@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Báo giá học phí CFA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: thanh công cụ trên cùng, bên trái nhập liệu theo 3 bước, bên phải là phiếu báo giá cập nhật trực tiếp (dính khi cuộn). Tab thứ hai là lịch khai giảng. */
+:root{
+  --bg:#f2f4f7; --surface:#ffffff; --surface2:#f6f8fa; --ink:#14202e; --muted:#566475; --line:#dce1e8;
+  --accent:#0a6e68; --accent-ink:#ffffff; --accent-soft:#dff1ef;
+  --good:#1c7a3e; --good-soft:#e1f3e6; --warn:#8a5200; --warn-soft:#fdf0d6; --bad:#b3261e; --bad-soft:#fbe3e1;
+  --font-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f161d; --surface:#17212b; --surface2:#1c2833; --ink:#e6ebf0; --muted:#9aa7b5; --line:#2a3744;
+    --accent:#4cc3b9; --accent-ink:#06201e; --accent-soft:#123a38;
+    --good:#6fd08c; --good-soft:#15301e; --warn:#f0b659; --warn-soft:#3a2c10; --bad:#ff8a80; --bad-soft:#3d1816;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --surface:#17212b; --surface2:#1c2833; --ink:#e6ebf0; --muted:#9aa7b5; --line:#2a3744;
+  --accent:#4cc3b9; --accent-ink:#06201e; --accent-soft:#123a38;
+  --good:#6fd08c; --good-soft:#15301e; --warn:#f0b659; --warn-soft:#3a2c10; --bad:#ff8a80; --bad-soft:#3d1816;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:0 88px}
+.wrap{max-width:1180px;margin-inline:auto}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--font-mono)}
+.num{font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-block:20px 12px}
+.top h1{margin:0;font-size:22px;line-height:1.2;font-weight:700;text-wrap:balance}
+.top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.datebox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.datebox input{width:auto}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* form */
+.cols{display:grid;gap:24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){.cols{grid-template-columns:minmax(0,1fr) minmax(0,440px);align-items:start}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:16px}
+.step h2{margin:0 0 14px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.step h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700}
+.grid2{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field>label,.lbl{font-size:12px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=tel],input[type=email],input[type=date],select{
+  width:100%;height:40px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);min-width:0}
+input[type=date]{min-width:150px}
+select:disabled{background:var(--surface2);color:var(--muted)}
+.hint{font-size:12px;color:var(--muted)}
+.chipbar{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.chip.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.sub{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.segs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-weight:600;background:var(--surface)}
+.seg input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.lvrow{display:grid;grid-template-columns:72px minmax(0,1fr) minmax(0,150px);gap:8px;align-items:center;margin-top:8px}
+.lvrow .lvname{font-weight:700}
+@media (max-width:560px){.lvrow{grid-template-columns:56px minmax(0,1fr) minmax(0,110px)}}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.check small{display:block;color:var(--muted);font-size:12px}
+.spgroup{margin-top:10px;background:var(--surface2);border-radius:6px;padding:10px 12px}
+.spgroup h3{margin:0 0 2px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.spgroup .check{padding:5px 0}
+.pct{margin-left:auto;font-weight:700;color:var(--accent);flex:none;padding-left:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:0 14px;height:40px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{height:32px;padding:0 10px;font-size:12px}
+details.rules{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 18px}
+details.rules summary{cursor:pointer;font-weight:700}
+details.rules ul{margin:10px 0 0;padding-left:18px;color:var(--muted)}
+details.rules li{margin-bottom:4px}
+.tiers{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.tiers td,.tiers th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+
+/* quote */
+.quote{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+@media (min-width:960px){.quote{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}}
+.qhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:var(--ink);color:var(--bg)}
+.qhead b{display:block;font-size:15px;letter-spacing:.06em}
+.qhead span{font-size:12px;opacity:.8}
+.qbody{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.checks{display:flex;flex-direction:column;gap:6px}
+.note{display:flex;gap:8px;padding:8px 10px;border-radius:6px;font-size:13px;background:var(--surface2)}
+.note.ok{background:var(--good-soft);color:var(--good)}
+.note.warn{background:var(--warn-soft);color:var(--warn)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.lines{display:flex;flex-direction:column}
+.ln{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.ln .t{min-width:0}
+.ln .t small{display:block;color:var(--muted);font-size:12px}
+.ln .v{white-space:nowrap;text-align:right;font-weight:600}
+.ln.off{color:var(--muted)}
+.ln.off .v{font-weight:400}
+.ln.sub{font-weight:700;border-bottom:0}
+.ln.disc .v{color:var(--good)}
+.total{background:var(--accent-soft);border-radius:8px;padding:14px 16px}
+.total .l{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.total .big{font-size:30px;line-height:1.15;font-weight:700;color:var(--ink)}
+.total .save{font-size:13px;color:var(--muted)}
+.total .words{font-size:13px;margin-top:6px;font-style:italic}
+.tips{display:flex;flex-direction:column;gap:6px}
+.tip{padding:8px 10px;border-radius:6px;background:var(--surface2);font-size:13px}
+.tip b{color:var(--accent)}
+.pay{font-size:13px;background:var(--surface2);border-radius:6px;padding:10px 12px}
+.pay .kv{grid-template-columns:100px minmax(0,1fr)}
+.fine{font-size:12px;color:var(--muted);margin:0;padding-left:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions .btn{flex:1 1 150px}
+#fallback{width:100%;height:120px;margin-top:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);padding:8px;font-family:var(--font-mono);font-size:12px}
+
+/* schedule */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px}
+.toolbar .field{width:160px}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table.sch{border-collapse:collapse;width:100%;min-width:820px}
+.sch th{position:sticky;top:0;background:var(--surface2);text-align:left;font-size:12px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.sch td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.sch tr:last-child td{border-bottom:0}
+.sch td.r,.sch th.r{text-align:right}
+
+/* mobile bar */
+.mbar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);z-index:5}
+.mbar .l{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.mbar .v{font-size:20px;font-weight:700}
+@media (min-width:960px){.mbar{display:none}body{padding-block:0 32px}}
+@media (prefers-reduced-motion:no-preference){.btn,.seg span{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Báo giá học phí CFA®</h1>
+      <p>SAPP Academy · Chính sách áp dụng 01/10/2026 – 31/10/2026</p>
+    </div>
+    <div class="datebox"><label for="qdate">Ngày báo giá</label><input type="date" id="qdate"></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-quote" aria-selected="true" aria-controls="p-quote">Báo giá học viên</button>
+    <button class="tab" role="tab" id="tab-sched" aria-selected="false" aria-controls="p-sched">Lịch khai giảng và mốc giá</button>
+  </div>
+
+  <section id="p-quote" role="tabpanel" aria-labelledby="tab-quote">
+    <div class="cols">
+      <div>
+        <div class="step">
+          <h2><span class="n">1</span>Học viên và tư vấn viên</h2>
+          <div class="grid2">
+            <div class="field"><label for="name">Họ và tên học viên</label><input type="text" id="name" autocomplete="off" placeholder="Nguyễn Văn A"></div>
+            <div class="field"><label for="phone">Số điện thoại</label><input type="tel" id="phone" autocomplete="off" placeholder="09xx xxx xxx"></div>
+            <div class="field"><label for="email">Email</label><input type="email" id="email" autocomplete="off" placeholder="ten@email.com"></div>
+            <div class="field"><label for="tvts">TVTS phụ trách</label><select id="tvts"></select></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2><span class="n">2</span>Lớp khai giảng và lộ trình</h2>
+          <div class="field">
+            <label for="cls">Lớp khai giảng đầu tiên</label>
+            <select id="cls"></select>
+          </div>
+          <div class="chipbar" id="clsInfo"></div>
+
+          <div class="sub">
+            <div class="lbl">Đăng ký</div>
+            <div id="levels"></div>
+            <p class="hint" style="margin:8px 0 0">Level đầu tiên theo đúng lớp đã chọn. Các Level sau tự nối tiếp, nên không thể chọn lộ trình bị đứt quãng.</p>
+          </div>
+
+          <div class="sub">
+            <div class="grid2">
+              <div class="field">
+                <label for="validity">Hiệu lực báo giá đến hết ngày</label>
+                <input type="date" id="validity">
+              </div>
+              <div class="field" style="justify-content:flex-end">
+                <button class="btn" id="autoValid" type="button">Dùng ngày tự động</button>
+              </div>
+            </div>
+            <p class="hint" id="validHint" style="margin:6px 0 0"></p>
+          </div>
+        </div>
+
+        <div class="step">
+          <h2><span class="n">3</span>Ưu đãi thêm</h2>
+          <label class="check"><input type="checkbox" id="group"><span>Đăng ký theo nhóm<small>Giảm 300.000đ cho mỗi học viên, không phân biệt số lượng thành viên.</small></span></label>
+          <label class="check"><input type="checkbox" id="special"><span>Học viên thuộc đối tượng đặc biệt<small>Học bổng thành tích cuộc thi hoặc quyền lợi Đối tác và Cộng đồng SAPP.</small></span></label>
+          <div id="specialBox" hidden>
+            <p class="hint" style="margin:4px 0 0">Tick mọi nhóm học viên thuộc về. Hệ thống so sánh và tự chọn phương án có học phí thấp nhất. Nhánh A và B không cộng dồn, trong Nhánh B chỉ lấy mức cao nhất.</p>
+            <div class="spgroup"><h3>Nhánh A · Học bổng thành tích (tính trên học phí gốc)</h3><div id="listA"></div></div>
+            <div class="spgroup"><h3>Nhánh B · Đối tác và Cộng đồng (tính trên học phí sau ưu đãi tháng)</h3><div id="listB"></div></div>
+          </div>
+        </div>
+
+        <details class="rules">
+          <summary>Cách tính ưu đãi tháng 10</summary>
+          <ul>
+            <li><b>Đăng ký lộ trình:</b> 2 Level liên tiếp giảm 15%, trọn 3 Level giảm 30% trên tổng học phí gốc. Đăng ký lẻ 1 Level không có ưu đãi này.</li>
+            <li><b>Học Face to face tại Hà Nội:</b> giảm 5% học phí gốc của từng Level học tại Hà Nội. F2F TP.HCM, Record và Live Online không áp dụng.</li>
+            <li><b>Đăng ký sớm:</b> tính theo số ngày từ ngày hoàn tất học phí đến ngày khai giảng lớp đầu tiên, trên tổng học phí gốc. Ngày hoàn tất là ngày tiền về tài khoản SAPP.</li>
+            <li><b>Đóng nhóm:</b> 300.000đ mỗi học viên.</li>
+            <li><b>Trần ưu đãi tháng:</b> tổng 4 khoản trên không vượt 45% học phí gốc. Với đối tượng đặc biệt, tổng ưu đãi không vượt 55%.</li>
+          </ul>
+          <table class="tiers" id="tierTable"></table>
+        </details>
+      </div>
+
+      <aside class="quote" id="quotePanel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section id="p-sched" role="tabpanel" aria-labelledby="tab-sched" hidden>
+    <div class="toolbar">
+      <div class="field"><label for="fLevel">Level</label><select id="fLevel"><option value="">Tất cả</option><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option></select></div>
+      <div class="field"><label for="fForm">Hình thức</label><select id="fForm"><option value="">Tất cả</option><option value="F2F">Face to face (F2F)</option><option value="LO">Live Online (LO)</option><option value="RO">Record Online</option></select></div>
+      <div class="field"><label for="fRegion">Khu vực</label><select id="fRegion"><option value="">Tất cả</option><option value="HN">Hà Nội</option><option value="HCM">TP.HCM</option></select></div>
+      <label class="check" style="padding:0 0 8px"><input type="checkbox" id="fUrgent"><span>Chỉ lớp sắp tụt mốc (còn 7 ngày hoặc ít hơn)</span></label>
+    </div>
+    <p class="hint" id="schedNote" style="margin:0 0 10px"></p>
+    <div class="tablewrap"><table class="sch" id="schTable"></table></div>
+  </section>
+</div>
+
+<div class="mbar" id="mbar"><div><div class="l">Học phí áp dụng</div><div class="v num" id="mbarVal">0đ</div></div><button class="btn primary" id="mbarGo" type="button">Xem phiếu</button></div>
+
+<script>
+(function(){
+'use strict';
+/* ===== Dữ liệu chính sách (nguồn: file báo giá tháng 10/2026) ===== */
+var FORM_NAME={RO:'Record Online',LO:'Live Online (LO)',F2F:'Face to face (F2F)'};
+var REGION_NAME={HN:'Hà Nội',HCM:'TP.HCM',ALL:'Toàn quốc'};
+var BASE={RO:[12000000,13500000,14500000],LO:[20500000,22500000,23500000],F2F:[23200000,24500000,30000000]};
+var PATH_PCT={1:0,2:0.15,3:0.30};
+var HN_PCT=0.05, GROUP_AMT=300000, CAP2=0.45, CAP3=0.55;
+var TIERS=[{from:0,pct:0},{from:7,pct:0.01},{from:21,pct:0.02},{from:35,pct:0.03},{from:49,pct:0.04},{from:63,pct:0.05}];
+var SP_A=[['Học bổng Quán quân',0.5],['Học bổng Á quân',0.4],['Học bổng Quý quân',0.3],['Học bổng Khuyến khích / Top 4',0.2]];
+var SP_B=[['Sinh viên / Nhân viên (Đối tác MOU)',0.05],['Giảng viên (Đối tác MOU)',0.08],['Cá nhân xuất sắc (Đối tác MOU)',0.10],['Thành viên CLB (CLB đối tác)',0.05],['Trưởng ban chuyên môn (BĐH CLB)',0.10],['Phó Chủ nhiệm (BĐH CLB)',0.15],['Chủ nhiệm (BĐH CLB)',0.20]];
+var TVTS=[
+ ['Lê Thị Ngọc Yến','0386328324','yenltn@sapp.edu.vn'],['Lê Đang Trường','0832334048','truongld@sapp.edu.vn'],
+ ['Trần Thị Vân Anh','0984726648','anhttv@sapp.edu.vn'],['Nguyễn Thị Linh Trang','0961774426','trangntl@sapp.edu.vn'],
+ ['Đỗ Mai Linh','0838026585','linhdm@sapp.edu.vn'],['Trần Phương Linh','0868071063','linhtp@sapp.edu.vn'],
+ ['Mai Thanh Hiền','0374776146','hienmt@sapp.edu.vn'],['Đặng Huỳnh Lan Phương','0352799254','phuongdhl01@sapp.edu.vn']];
+var BANK={bank:'Ngân hàng TMCP Quân đội (MB)',acc:'303886688',owner:'CÔNG TY TNHH GIÁO DỤC SCFA',hotline:'1900 2225',web:'sapp.edu.vn'};
+
+function D(s){var p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+var CLASSES=[
+ ['CFA117.1026',1,'RO','ALL','2026-10-05'],['CFA210.1026',2,'RO','ALL','2026-10-05'],
+ ['CFA202.16',2,'F2F','HN','2026-10-20'],['CFA2H02.16',2,'LO','ALL','2026-10-20'],
+ ['CFA103.58',1,'F2F','HCM','2026-10-22'],['CFA1H03.58',1,'LO','ALL','2026-10-22'],
+ ['CFA102.50A',1,'F2F','HN','2026-10-26'],['CFA1H02.50A',1,'LO','ALL','2026-10-26'],
+ ['CFA203.16',2,'F2F','HCM','2026-10-27'],['CFA2H03.16',2,'LO','ALL','2026-10-27'],['CFA205.03',2,'F2F','HN','2026-10-27'],
+ ['CFA102.51',1,'F2F','HN','2026-11-25'],['CFA1H02.51',1,'LO','ALL','2026-11-25'],
+ ['CFA103.59',1,'F2F','HCM','2026-11-30'],
+ ['CFA105.14',1,'F2F','HN','2026-12-21'],['CFA1H05.14',1,'LO','ALL','2026-12-21'],['CFA103.60',1,'F2F','HCM','2026-12-24'],
+ ['CFA118.0127',1,'RO','ALL','2027-01-05'],['CFA211.0127',2,'RO','ALL','2027-01-05'],['CFA302.0127',3,'RO','ALL','2027-01-05']
+].map(function(r){return {code:r[0],level:r[1],form:r[2],region:r[3],kg:D(r[4])};});
+
+/* ===== Tiện ích ===== */
+function $(s){return document.querySelector(s);}
+function pad(n){return String(n).padStart(2,'0');}
+function fmt(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.')+'đ';}
+function pc(x){return (Math.round(x*1000)/10).toString().replace('.',',')+'%';}
+function dmy(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();}
+function dm(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1);}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);}
+function diff(a,b){return Math.round((b-a)/864e5);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function levelLabel(c){return 'Level '+c.level+' · '+FORM_NAME[c.form]+(c.form==='F2F'?' '+REGION_NAME[c.region]:'');}
+
+var DG=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+function read3(n,full){
+  var h=Math.floor(n/100),t=Math.floor(n%100/10),u=n%10,s='';
+  if(h>0||full) s+=DG[h]+' trăm';
+  if(t>1){s+=' '+DG[t]+' mươi'; if(u===1)s+=' mốt'; else if(u===5)s+=' lăm'; else if(u>0)s+=' '+DG[u];}
+  else if(t===1){s+=' mười'; if(u===5)s+=' lăm'; else if(u>0)s+=' '+DG[u];}
+  else if(u>0){ s+=(h>0||full)?' lẻ '+DG[u]:' '+DG[u]; }
+  return s.trim();
+}
+function readVN(n){
+  n=Math.round(n); if(n<=0) return 'Không đồng';
+  var units=['tỷ','triệu','nghìn',''],g=[Math.floor(n/1e9),Math.floor(n%1e9/1e6),Math.floor(n%1e6/1e3),n%1e3],out=[],seen=false;
+  for(var i=0;i<4;i++){ if(g[i]>0){ out.push(read3(g[i],seen)+(units[i]?' '+units[i]:'')); seen=true; } }
+  var s=out.join(' ')+' đồng'; return s.charAt(0).toUpperCase()+s.slice(1);
+}
+
+/* ===== Tính mốc đăng ký sớm ===== */
+function tierIdx(days){ if(days<0) return -1; var m=0; TIERS.forEach(function(t,i){ if(days>=t.from) m=i; }); return m; }
+function holdInfo(kg,today){
+  var days=diff(today,kg);
+  if(days<0) return {started:true,days:days};
+  var m=tierIdx(days), deadline=addDays(kg,-TIERS[m].from);
+  return {started:false,days:days,m:m,pct:TIERS[m].pct,deadline:deadline,left:diff(today,deadline),
+          nextPct:m>0?TIERS[m-1].pct:null};
+}
+
+/* ===== Trạng thái ===== */
+var today=new Date(); today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{}};
+try{var saved=localStorage.getItem('sapp_tvts'); if(saved!==null && TVTS[+saved]) S.tvts=+saved;}catch(e){}
+function getCls(){return CLASSES.filter(function(c){return c.code===S.classCode;})[0]||null;}
+(function pickDefault(){
+  var q=D(S.qdate), pref=CLASSES.filter(function(c){return c.code==='CFA1H05.14' && c.kg>=q;})[0];
+  var any=CLASSES.filter(function(c){return c.kg>=q;})[0];
+  var c=pref||any||CLASSES[0]; S.classCode=c.code; S.n=4-c.level;
+})();
+
+/* ===== Tính học phí ===== */
+function calc(){
+  var cls=getCls(), qd=D(S.qdate), r={cls:cls,qd:qd,levels:[],errors:[],notes:[]};
+  if(!cls){r.errors.push('Chưa chọn lớp khai giảng đầu tiên.'); r.final=0; r.base=0; r.lines=[]; return r;}
+  r.hi=holdInfo(cls.kg,qd);
+  if(r.hi.started) r.errors.push('Lớp '+cls.code+' đã khai giảng ngày '+dmy(cls.kg)+'. Không còn ưu đãi đăng ký sớm cho lớp này.');
+  r.autoValid=r.hi.started?null:r.hi.deadline;
+  r.valid=S.validity?D(S.validity):r.autoValid;
+  for(var i=0;i<S.n;i++){
+    var lv=cls.level+i, form,region;
+    if(i===0){form=cls.form;region=cls.region;}
+    else{form=S.forms[lv]||cls.form; region=form==='F2F'?(S.regions[lv]||(cls.form==='F2F'?cls.region:'HCM')):'ALL';}
+    r.levels.push({lv:lv,form:form,region:region,price:BASE[form][lv-1]});
+  }
+  var n=r.levels.length; r.base=r.levels.reduce(function(a,l){return a+l.price;},0);
+  r.pathPct=PATH_PCT[n]; r.pathVal=r.base*r.pathPct;
+  r.hnBase=r.levels.filter(function(l){return l.form==='F2F'&&l.region==='HN';}).reduce(function(a,l){return a+l.price;},0);
+  r.hnVal=r.hnBase*HN_PCT;
+  r.daysToKG=r.valid?diff(r.valid,cls.kg):-1;
+  r.earlyIdx=r.daysToKG>=0?tierIdx(r.daysToKG):-1;
+  r.earlyPct=r.earlyIdx>=0?TIERS[r.earlyIdx].pct:0; r.earlyVal=r.base*r.earlyPct;
+  r.groupVal=S.group?GROUP_AMT:0;
+  r.raw=r.pathVal+r.hnVal+r.earlyVal+r.groupVal;
+  r.cap=r.base*CAP2; r.capped=r.raw>r.cap+0.5;
+  r.normalDisc=Math.min(r.raw,r.cap); r.normal=r.base-r.normalDisc;
+  /* Tầng 3 */
+  var pA=0,nA='',pB=0,nB='';
+  if(S.special){
+    SP_A.forEach(function(x,i){ if(S.A[i]&&x[1]>pA){pA=x[1];nA=x[0];} });
+    SP_B.forEach(function(x,i){ if(S.B[i]&&x[1]>pB){pB=x[1];nB=x[0];} });
+  }
+  r.pA=pA;r.nA=nA;r.pB=pB;r.nB=nB;
+  r.priceA=pA?r.base*(1-pA):null; r.priceB=pB?r.normal*(1-pB):null;
+  var best=r.normal, plan='normal';
+  if(r.priceA!==null && r.priceA<best){best=r.priceA;plan='A';}
+  if(r.priceB!==null && r.priceB<best){best=r.priceB;plan='B';}
+  var floor=r.base*(1-CAP3);
+  if(plan!=='normal' && best<floor){best=floor;r.cap3=true;}
+  r.plan=plan; r.final=Math.round(best); r.saved=r.base-r.final;
+  /* Dòng ưu đãi */
+  r.lines=[];
+  r.lines.push({t:'Ưu đãi đăng ký lộ trình',s:n>=2?'Đăng ký '+n+' Level liên tiếp · '+pc(r.pathPct)+' × học phí gốc':'Đăng ký lẻ 1 Level, không áp dụng',v:r.pathVal,on:r.pathVal>0});
+  r.lines.push({t:'Ưu đãi học Face to face tại Hà Nội',s:r.hnBase>0?pc(HN_PCT)+' × '+fmt(r.hnBase)+' (Level học tại Hà Nội)':'Không có Level F2F học tại Hà Nội',v:r.hnVal,on:r.hnVal>0});
+  r.lines.push({t:'Ưu đãi đăng ký sớm',s:r.earlyIdx>=0?(r.earlyIdx===0?'Hoàn tất trong 7 ngày cuối trước khai giảng, chưa có ưu đãi':'Mốc '+r.earlyIdx+' · '+pc(r.earlyPct)+' × học phí gốc · hoàn tất trước khai giảng '+r.daysToKG+' ngày'):'Hiệu lực sau ngày khai giảng, không áp dụng',v:r.earlyVal,on:r.earlyVal>0});
+  r.lines.push({t:'Ưu đãi đóng nhóm',s:S.group?'Cố định 300.000đ mỗi học viên':'Không đăng ký theo nhóm',v:r.groupVal,on:r.groupVal>0});
+  /* Cảnh báo */
+  if(S.validity){
+    if(r.valid<qd) r.errors.push('Hiệu lực báo giá ('+dmy(r.valid)+') đang trước ngày báo giá ('+dmy(qd)+').');
+    else if(r.valid>cls.kg) r.errors.push('Hiệu lực báo giá ('+dmy(r.valid)+') sau ngày khai giảng ('+dmy(cls.kg)+'), nên không có ưu đãi đăng ký sớm.');
+    else if(r.autoValid && r.valid>r.autoValid) r.notes.push('Hiệu lực nhập tay ('+dmy(r.valid)+') muộn hơn ngày giữ mốc hiện tại ('+dmy(r.autoValid)+'), nên ưu đãi đăng ký sớm đã tụt xuống '+pc(r.earlyPct)+'.');
+    else if(r.autoValid && r.valid<r.autoValid) r.notes.push('Hiệu lực nhập tay sớm hơn ngày giữ mốc ('+dmy(r.autoValid)+'). Học viên có thể được hưởng mốc cao hơn nếu để ngày tự động.');
+  }
+  if(!S.name.trim()) r.notes.push('Chưa nhập tên học viên.');
+  if(!S.phone.trim()) r.notes.push('Chưa nhập số điện thoại.');
+  if(r.capped) r.notes.push('Ưu đãi tháng chạm trần '+pc(CAP2)+'. Phần vượt '+fmt(r.raw-r.cap)+' không được áp dụng.');
+  if(S.special && !pA && !pB) r.notes.push('Đã bật đối tượng đặc biệt nhưng chưa tick nhóm nào.');
+  if(r.cap3) r.notes.push('Tổng ưu đãi chạm trần '+pc(CAP3)+' học phí gốc.');
+  return r;
+}
+
+/* ===== Hiển thị phiếu ===== */
+function tips(r){
+  var out=[], cls=r.cls; if(!cls) return out;
+  var maxN=4-cls.level;
+  if(S.n<maxN){
+    var nextLv=cls.level+S.n, np=PATH_PCT[S.n+1];
+    var add=BASE[(S.forms[nextLv]||cls.form)][nextLv-1];
+    var newBase=r.base+add, extra=newBase*np-r.base*r.pathPct;
+    out.push('Đăng ký thêm <b>Level '+nextLv+'</b>: ưu đãi lộ trình tăng từ <b>'+pc(r.pathPct)+'</b> lên <b>'+pc(np)+'</b> trên toàn bộ lộ trình (ưu đãi lộ trình tăng thêm khoảng '+fmt(extra)+').');
+  }
+  if(r.hi && !r.hi.started && r.hi.m>0){
+    var drop=r.base*(r.hi.pct-r.hi.nextPct);
+    var when=r.hi.left<=0?'Hôm nay là ngày cuối':'Còn '+r.hi.left+' ngày';
+    out.push(when+' để giữ <b>mốc '+r.hi.m+' ('+pc(r.hi.pct)+')</b>, hoàn tất học phí đến hết '+dmy(r.hi.deadline)+'. Sau đó tụt xuống mốc '+(r.hi.m-1)+' ('+pc(r.hi.nextPct)+'), học phí tăng khoảng <b>'+fmt(drop)+'</b>.');
+  }
+  if(!S.group) out.push('Nếu học viên đăng ký theo nhóm, được giảm thêm 300.000đ.');
+  return out;
+}
+
+function renderQuote(r){
+  var t=TVTS[S.tvts], h='';
+  var ok=!r.errors.length;
+  h+='<div class="qhead"><div><b>SAPP ACADEMY</b><span>Phiếu báo giá học phí CFA®</span></div><div><span>Ngày báo giá</span><b class="num" style="letter-spacing:0">'+dmy(r.qd)+'</b></div></div>';
+  h+='<div class="qbody">';
+  h+='<div class="checks">';
+  if(ok && !r.notes.length) h+='<div class="note ok">Sẵn sàng báo giá.</div>';
+  r.errors.forEach(function(e){h+='<div class="note bad">'+esc(e)+'</div>';});
+  r.notes.forEach(function(e){h+='<div class="note warn">'+esc(e)+'</div>';});
+  h+='</div>';
+  h+='<dl class="kv">'
+    +'<dt>Học viên</dt><dd>'+(S.name.trim()?esc(S.name.trim()):'<span style="color:var(--muted)">(chưa nhập)</span>')+'</dd>'
+    +'<dt>Liên hệ</dt><dd>'+esc([S.phone.trim(),S.email.trim()].filter(Boolean).join(' · ')||'(chưa nhập)')+'</dd>'
+    +'<dt>TVTS</dt><dd>'+esc(t[0])+' · '+esc(t[1])+'<br>'+esc(t[2])+'</dd>'
+    +'<dt>Lớp đầu tiên</dt><dd><span class="mono">'+(r.cls?esc(r.cls.code):'')+'</span>'+(r.cls?' · khai giảng '+dmy(r.cls.kg):'')+'</dd></dl>';
+  h+='<div class="lines">';
+  r.levels.forEach(function(l){
+    h+='<div class="ln"><div class="t">CFA Level '+l.lv+'<small>'+FORM_NAME[l.form]+' · '+REGION_NAME[l.region]+'</small></div><div class="v num">'+fmt(l.price)+'</div></div>';
+  });
+  h+='<div class="ln sub"><div class="t">Học phí gốc ('+r.levels.length+' Level)</div><div class="v num">'+fmt(r.base)+'</div></div>';
+  r.lines.forEach(function(l){
+    if(!l.on) return;
+    h+='<div class="ln disc'+(l.on?'':' off')+'"><div class="t">'+l.t+'<small>'+esc(l.s)+'</small></div><div class="v num">'+(l.on?'− '+fmt(l.v):'0đ')+'</div></div>';
+  });
+  if(r.capped) h+='<div class="ln"><div class="t">Điều chỉnh về trần '+pc(CAP2)+'<small>Phần vượt trần không áp dụng</small></div><div class="v num">+ '+fmt(r.raw-r.cap)+'</div></div>';
+  h+='<div class="ln sub"><div class="t">Học phí sau ưu đãi tháng</div><div class="v num">'+fmt(r.normal)+'</div></div>';
+  if(S.special && (r.pA||r.pB)){
+    if(r.pA) h+='<div class="ln'+(r.plan==='A'?' disc':' off')+'"><div class="t">Nhánh A · '+esc(r.nA)+'<small>'+pc(r.pA)+' × học phí gốc = '+fmt(r.priceA)+'</small></div><div class="v num">'+(r.plan==='A'?'Áp dụng':'Không chọn')+'</div></div>';
+    if(r.pB) h+='<div class="ln'+(r.plan==='B'?' disc':' off')+'"><div class="t">Nhánh B · '+esc(r.nB)+'<small>Giảm thêm '+pc(r.pB)+' × học phí sau ưu đãi tháng = '+fmt(r.priceB)+'</small></div><div class="v num">'+(r.plan==='B'?'Áp dụng':'Không chọn')+'</div></div>';
+    if(r.plan==='normal') h+='<div class="ln off"><div class="t">Quyền lợi đặc biệt không thấp hơn ưu đãi tháng<small>Giữ học phí thông thường</small></div><div class="v"></div></div>';
+  }
+  h+='</div>';
+  h+='<div class="total"><div class="l">Học phí áp dụng</div><div class="big num">'+fmt(r.final)+'</div>'
+    +'<div class="save num">Giảm '+fmt(r.saved)+' ('+pc(r.base?r.saved/r.base:0)+') so với học phí gốc</div>'
+    +'<div class="words">Bằng chữ: '+readVN(r.final)+'.</div></div>';
+  h+='<dl class="kv"><dt>Hiệu lực đến hết</dt><dd><b>'+(r.valid?dmy(r.valid):'(chưa có)')+'</b></dd></dl>';
+  var tp=tips(r);
+  if(tp.length){h+='<div><div class="lbl" style="margin-bottom:6px">Gợi ý chốt deal</div><div class="tips">'+tp.map(function(x){return '<div class="tip">'+x+'</div>';}).join('')+'</div></div>';}
+  var ck=transferContent();
+  h+='<div class="pay"><div class="lbl" style="margin-bottom:6px">Thanh toán</div><dl class="kv"><dt>Ngân hàng</dt><dd>'+BANK.bank+'</dd><dt>Số tài khoản</dt><dd class="mono">'+BANK.acc+'</dd><dt>Chủ tài khoản</dt><dd>'+BANK.owner+'</dd><dt>Nội dung CK</dt><dd>'+esc(ck)+'</dd></dl></div>';
+  h+='<ul class="fine"><li>Học phí tính theo ngày tiền về tài khoản SAPP. Hoàn tất sau ngày khai giảng không có ưu đãi đăng ký sớm.</li><li>Ưu đãi áp dụng khi học viên đáp ứng đúng điều kiện ghi trên phiếu.</li><li>Học phí đã gồm tài liệu học tập của SAPP, chưa gồm phí đăng ký và phí thi của CFA Institute.</li><li>Bảo lưu, chuyển lớp và hoàn phí theo quy định hiện hành của SAPP Academy.</li></ul>';
+  h+='<div class="actions"><button class="btn primary" id="copyQuote" type="button">Sao chép báo giá để gửi Zalo</button><button class="btn" id="copyCk" type="button">Sao chép nội dung CK</button></div>';
+  h+='<div id="copyMsg" class="hint" role="status"></div><textarea id="fallback" hidden readonly aria-label="Nội dung báo giá"></textarea>';
+  h+='</div>';
+  $('#quotePanel').innerHTML=h;
+  $('#mbarVal').textContent=fmt(r.final);
+}
+function transferContent(){ return [S.name.trim(),S.phone.trim()].filter(Boolean).join(' – ')||'Họ tên – Số điện thoại'; }
+
+function quoteText(r){
+  var t=TVTS[S.tvts], L=[];
+  L.push('BÁO GIÁ HỌC PHÍ CFA® – SAPP ACADEMY','Ngày báo giá: '+dmy(r.qd));
+  L.push('Học viên: '+(S.name.trim()||'...')+(S.phone.trim()?' – '+S.phone.trim():''));
+  if(r.cls) L.push('Lớp khai giảng đầu tiên: '+r.cls.code+' (khai giảng '+dmy(r.cls.kg)+')');
+  L.push('');
+  r.levels.forEach(function(l){L.push('• CFA Level '+l.lv+' – '+FORM_NAME[l.form]+' ('+REGION_NAME[l.region]+'): '+fmt(l.price));});
+  L.push('Học phí gốc: '+fmt(r.base));
+  r.lines.forEach(function(l){ if(l.on) L.push('– '+l.t.replace('Ưu đãi ','Ưu đãi ')+': −'+fmt(l.v)); });
+  if(r.capped) L.push('– Điều chỉnh về trần '+pc(CAP2)+': +'+fmt(r.raw-r.cap));
+  if(r.plan==='A') L.push('– '+r.nA+' ('+pc(r.pA)+' học phí gốc) thay thế ưu đãi tháng');
+  if(r.plan==='B') L.push('– '+r.nB+': giảm thêm '+pc(r.pB)+' trên học phí sau ưu đãi tháng');
+  L.push('','HỌC PHÍ ÁP DỤNG: '+fmt(r.final),'('+readVN(r.final)+')');
+  if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
+  L.push('','Chuyển khoản: '+BANK.bank+' – STK '+BANK.acc+' – '+BANK.owner,'Nội dung CK: '+transferContent());
+  L.push('','Tư vấn viên: '+t[0]+' – '+t[1]+' – '+t[2],'Hotline '+BANK.hotline+' · '+BANK.web);
+  return L.join('\n');
+}
+
+function copy(text,msg){
+  var m=$('#copyMsg'), fb=$('#fallback');
+  function fail(){ fb.hidden=false; fb.value=text; fb.focus(); fb.select(); m.textContent='Trình duyệt chặn sao chép tự động. Nội dung đã được chọn sẵn, nhấn Ctrl+C (hoặc giữ và chọn Sao chép).'; }
+  try{ navigator.clipboard.writeText(text).then(function(){ fb.hidden=true; m.textContent=msg; },fail); }catch(e){ fail(); }
+}
+
+/* ===== Các phần điều khiển ===== */
+var cur=null;
+function update(){
+  cur=calc(); renderQuote(cur);
+  var cls=cur.cls, info='';
+  if(cls){
+    var hi=cur.hi;
+    info+='<span class="chip acc">'+levelLabel(cls)+'</span>';
+    if(hi.started) info+='<span class="chip bad">Đã khai giảng</span>';
+    else{
+      info+='<span class="chip">Khai giảng '+dmy(cls.kg)+' · còn '+hi.days+' ngày</span>';
+      info+='<span class="chip '+(hi.m===0?'bad':hi.left<=3?'warn':'good')+'">Mốc '+hi.m+' · '+pc(hi.pct)+'</span>';
+      info+='<span class="chip '+(hi.left<=3?'warn':'')+'">'+(hi.m===0?'Hết ưu đãi đăng ký sớm sau '+dm(hi.deadline):(hi.left<=0?'Hôm nay là ngày cuối giữ mốc':'Giữ mốc đến '+dm(hi.deadline)+' (còn '+hi.left+' ngày)'))+'</span>';
+    }
+  }
+  $('#clsInfo').innerHTML=info;
+  var vi=$('#validity');
+  if(!S.validity) vi.value=cur.autoValid?iso(cur.autoValid):'';
+  var vh='';
+  if(cur.valid){
+    vh=S.validity?'Đang nhập tay. Ngày tự động là '+(cur.autoValid?dmy(cur.autoValid):'(không có)')+'. ':'Tự động: ngày cuối giữ mốc hiện tại. ';
+    vh+=cur.earlyIdx>=0?'Hoàn tất học phí đến hết ngày này thì được mốc '+cur.earlyIdx+' ('+pc(cur.earlyPct)+').':'Không có ưu đãi đăng ký sớm.';
+  }
+  $('#validHint').textContent=vh;
+  if($('#p-sched').hidden===false) renderSched();
+}
+
+function renderLevels(){
+  var cls=getCls(), box=$('#levels'); if(!cls){box.innerHTML='';return;}
+  var maxN=4-cls.level, h='<div class="segs" role="radiogroup" aria-label="Số Level đăng ký">';
+  for(var k=1;k<=maxN;k++){
+    var lab=k===1?'Level '+cls.level:'Level '+cls.level+'–'+(cls.level+k-1);
+    h+='<label class="seg"><input type="radio" name="nlv" value="'+k+'"'+(S.n===k?' checked':'')+'><span>'+lab+(k>=2?' · −'+pc(PATH_PCT[k]):'')+'</span></label>';
+  }
+  h+='</div>';
+  for(var i=0;i<S.n;i++){
+    var lv=cls.level+i;
+    if(i===0){
+      h+='<div class="lvrow"><div class="lvname">Level '+lv+'</div><select disabled aria-label="Hình thức Level '+lv+'"><option>'+FORM_NAME[cls.form]+'</option></select><select disabled aria-label="Khu vực Level '+lv+'"><option>'+REGION_NAME[cls.region]+'</option></select></div>';
+    }else{
+      var f=S.forms[lv]||cls.form, rg=S.regions[lv]||(cls.form==='F2F'?cls.region:'HCM');
+      S.forms[lv]=f; S.regions[lv]=rg;
+      h+='<div class="lvrow"><div class="lvname">Level '+lv+'</div>'
+        +'<select data-lv="'+lv+'" data-k="form" aria-label="Hình thức Level '+lv+'">'+['LO','RO','F2F'].map(function(x){return '<option value="'+x+'"'+(x===f?' selected':'')+'>'+FORM_NAME[x]+'</option>';}).join('')+'</select>'
+        +'<select data-lv="'+lv+'" data-k="region" aria-label="Khu vực Level '+lv+'"'+(f==='F2F'?'':' hidden')+'>'+['HCM','HN'].map(function(x){return '<option value="'+x+'"'+(x===rg?' selected':'')+'>'+REGION_NAME[x]+'</option>';}).join('')+'</select></div>';
+    }
+  }
+  box.innerHTML=h;
+}
+
+/* ===== Lịch khai giảng ===== */
+function renderSched(){
+  var q=D(S.qdate), fl=$('#fLevel').value, ff=$('#fForm').value, fr=$('#fRegion').value, urgent=$('#fUrgent').checked;
+  $('#schedNote').textContent='Tính theo ngày báo giá '+dmy(q)+'. Mốc tụt khi quá hạn chót giữ mốc, học phí tăng theo bảng ưu đãi đăng ký sớm.';
+  var rows=CLASSES.filter(function(c){
+    if(fl&&String(c.level)!==fl) return false; if(ff&&c.form!==ff) return false;
+    if(fr&&!(c.form==='F2F'&&c.region===fr)) return false;
+    if(urgent){var hi=holdInfo(c.kg,q); if(hi.started||hi.m===0||hi.left>7) return false;}
+    return true;
+  });
+  var h='<thead><tr><th>Mã lớp</th><th>Lớp</th><th>Khai giảng</th><th class="r">Còn (ngày)</th><th>Mốc hiện tại</th><th>Giữ mốc đến</th><th>Trạng thái</th><th></th></tr></thead><tbody>';
+  if(!rows.length) h+='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Không có lớp phù hợp bộ lọc.</td></tr>';
+  rows.forEach(function(c){
+    var hi=holdInfo(c.kg,q), st,cl,m1,m2;
+    if(hi.started){st='Đã khai giảng';cl='bad';m1='–';m2='–';}
+    else{
+      m1='Mốc '+hi.m+' · '+pc(hi.pct); m2=dm(hi.deadline);
+      if(hi.m===0){st='Hết ưu đãi đăng ký sớm';cl='bad';}
+      else if(hi.left<=0){st='Hôm nay là ngày cuối';cl='bad';}
+      else if(hi.left<=3){st='Còn '+hi.left+' ngày, sắp tụt';cl='warn';}
+      else if(hi.left<=7){st='Còn '+hi.left+' ngày';cl='warn';}
+      else{st='Còn '+hi.left+' ngày';cl='good';}
+    }
+    h+='<tr><td class="mono">'+esc(c.code)+'</td><td>'+esc(levelLabel(c))+'</td><td class="num">'+dmy(c.kg)+'</td><td class="r num">'+(hi.started?'–':hi.days)+'</td><td class="num">'+m1+'</td><td class="num">'+m2+'</td><td><span class="chip '+cl+'">'+st+'</span></td><td class="r"><button class="btn small" data-quote="'+esc(c.code)+'" type="button"'+(hi.started?' disabled':'')+'>Báo giá lớp này</button></td></tr>';
+  });
+  $('#schTable').innerHTML=h+'</tbody>';
+}
+
+/* ===== Khởi tạo ===== */
+function init(){
+  $('#qdate').value=S.qdate;
+  $('#tvts').innerHTML=TVTS.map(function(t,i){return '<option value="'+i+'"'+(i===S.tvts?' selected':'')+'>'+esc(t[0])+'</option>';}).join('');
+  $('#cls').innerHTML=CLASSES.map(function(c){return '<option value="'+c.code+'"'+(c.code===S.classCode?' selected':'')+'>'+c.code+' · '+dm(c.kg)+' · '+levelLabel(c)+'</option>';}).join('');
+  $('#listA').innerHTML=SP_A.map(function(x,i){return '<label class="check"><input type="checkbox" data-sp="A" data-i="'+i+'"><span>'+x[0]+'</span><span class="pct">'+pc(x[1])+'</span></label>';}).join('');
+  $('#listB').innerHTML=SP_B.map(function(x,i){return '<label class="check"><input type="checkbox" data-sp="B" data-i="'+i+'"><span>'+x[0]+'</span><span class="pct">'+pc(x[1])+'</span></label>';}).join('');
+  var tt='<tr><th>Mốc</th><th>Hoàn tất trước khai giảng</th><th>Ưu đãi</th></tr>';
+  for(var i=TIERS.length-1;i>=0;i--){
+    var lo=TIERS[i].from, hi=i<TIERS.length-1?TIERS[i+1].from-1:null;
+    tt+='<tr><td>Mốc '+i+'</td><td>'+(hi===null?'Từ '+lo+' ngày trở lên':(lo===0?'Dưới '+(hi+1)+' ngày':lo+' đến '+hi+' ngày'))+'</td><td><b>'+pc(TIERS[i].pct)+'</b></td></tr>';
+  }
+  $('#tierTable').innerHTML=tt;
+  renderLevels(); update();
+}
+
+/* Sự kiện */
+$('#name').addEventListener('input',function(e){S.name=e.target.value;update();});
+$('#phone').addEventListener('input',function(e){S.phone=e.target.value;update();});
+$('#email').addEventListener('input',function(e){S.email=e.target.value;update();});
+$('#tvts').addEventListener('change',function(e){S.tvts=+e.target.value;try{localStorage.setItem('sapp_tvts',String(S.tvts));}catch(x){}update();});
+$('#qdate').addEventListener('change',function(e){ if(e.target.value){S.qdate=e.target.value;} else e.target.value=S.qdate; update(); });
+$('#cls').addEventListener('change',function(e){
+  S.classCode=e.target.value; var c=getCls(); S.n=4-c.level; S.validity=''; S.forms={}; S.regions={};
+  renderLevels(); update();
+});
+$('#levels').addEventListener('change',function(e){
+  var t=e.target;
+  if(t.name==='nlv'){S.n=+t.value; S.validity=S.validity; renderLevels(); update(); return;}
+  var lv=t.getAttribute('data-lv'); if(!lv) return;
+  if(t.getAttribute('data-k')==='form'){
+    S.forms[lv]=t.value; var rg=t.parentNode.querySelector('select[data-k="region"]'); if(rg) rg.hidden=(t.value!=='F2F');
+  }else S.regions[lv]=t.value;
+  update();
+});
+$('#validity').addEventListener('change',function(e){S.validity=e.target.value;update();});
+$('#autoValid').addEventListener('click',function(){S.validity='';update();});
+$('#group').addEventListener('change',function(e){S.group=e.target.checked;update();});
+$('#special').addEventListener('change',function(e){S.special=e.target.checked;$('#specialBox').hidden=!S.special;update();});
+$('#specialBox').addEventListener('change',function(e){
+  var t=e.target, k=t.getAttribute('data-sp'); if(!k) return;
+  S[k][t.getAttribute('data-i')]=t.checked; update();
+});
+$('#quotePanel').addEventListener('click',function(e){
+  var id=e.target.id;
+  if(id==='copyQuote') copy(quoteText(cur),'Đã sao chép báo giá. Dán vào Zalo hoặc email để gửi học viên.');
+  if(id==='copyCk') copy(transferContent(),'Đã sao chép nội dung chuyển khoản.');
+});
+$('#mbarGo').addEventListener('click',function(){ $('#quotePanel').scrollIntoView({behavior:'smooth',block:'start'}); });
+
+function showTab(which){
+  var q=which==='quote';
+  $('#p-quote').hidden=!q; $('#p-sched').hidden=q;
+  $('#tab-quote').setAttribute('aria-selected',q); $('#tab-sched').setAttribute('aria-selected',!q);
+  $('#mbar').hidden=!q;
+  if(!q) renderSched();
+}
+$('#tab-quote').addEventListener('click',function(){showTab('quote');});
+$('#tab-sched').addEventListener('click',function(){showTab('sched');});
+['fLevel','fForm','fRegion','fUrgent'].forEach(function(id){$('#'+id).addEventListener('change',renderSched);});
+$('#schTable').addEventListener('click',function(e){
+  var code=e.target.getAttribute&&e.target.getAttribute('data-quote'); if(!code) return;
+  S.classCode=code; var c=getCls(); S.n=4-c.level; S.validity=''; S.forms={}; S.regions={};
+  $('#cls').value=code; renderLevels(); showTab('quote'); update(); window.scrollTo({top:0});
+});
+
+init();
+})();
+</script>
+
+</body>
+</html>
