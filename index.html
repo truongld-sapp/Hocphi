@@ -99,7 +99,7 @@ details.rules li{margin-bottom:4px}
 
 /* quote */
 .quote{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-@media (min-width:960px){.quote{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}}
+@media (min-width:960px){.rightcol{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}}
 .qhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:var(--ink);color:var(--bg)}
 .qhead b{display:block;font-size:15px;letter-spacing:.06em}
 .qhead span{font-size:12px;opacity:.8}
@@ -146,6 +146,44 @@ table.sch{border-collapse:collapse;width:100%;min-width:820px}
 .sch tr:last-child td{border-bottom:0}
 .sch td.r,.sch th.r{text-align:right}
 
+/* tools, collapsibles, student view, print */
+.rightcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.qtools{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 14px 12px}
+.qtools .check{padding:6px 0}
+.qtools .actions{margin-top:6px}
+details.flags,details.tipsbox{border:1px solid var(--line);border-radius:6px;background:var(--surface2)}
+details.flags>summary,details.tipsbox>summary{cursor:pointer;padding:9px 12px;font-weight:600;font-size:13px;list-style:none}
+details.flags>summary::-webkit-details-marker,details.tipsbox>summary::-webkit-details-marker{display:none}
+details.flags>summary::before,details.tipsbox>summary::before{content:'\25B8';display:inline-block;width:1.1em}
+details.flags[open]>summary::before,details.tipsbox[open]>summary::before{content:'\25BE'}
+details.flags>summary.bad{color:var(--bad)}
+details.flags>summary.warn{color:var(--warn)}
+details.tipsbox>summary{color:var(--accent)}
+details.flags>.checks,details.tipsbox>.tips{padding:0 12px 12px}
+.quote.student .internal{display:none}
+@page{margin:12mm}
+@media print{
+  :root:root:root{--bg:#fff;--surface:#fff;--surface2:#f6f8fa;--ink:#14202e;--muted:#566475;--line:#dce1e8;--accent:#0a6e68;--accent-ink:#fff;--accent-soft:#dff1ef;--good:#1c7a3e;--good-soft:#e1f3e6;--warn:#8a5200;--warn-soft:#fdf0d6;--bad:#b3261e;--bad-soft:#fbe3e1;color-scheme:light}
+  body{padding:0;background:#fff}
+  .top,.tabs,#p-sched,.col-left,.mbar,.qtools,.internal,.modal{display:none!important}
+  .cols{display:block}
+  .rightcol{position:static;max-height:none;overflow:visible}
+  .quote{border:0;border-radius:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .qhead,.total,.ln,.pay{break-inside:avoid}
+}
+
+/* image export */
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.forcelight{--bg:#fff;--surface:#fff;--surface2:#f6f8fa;--ink:#14202e;--muted:#566475;--line:#dce1e8;--accent:#0a6e68;--accent-ink:#fff;--accent-soft:#dff1ef;--good:#1c7a3e;--good-soft:#e1f3e6;--warn:#8a5200;--warn-soft:#fdf0d6;--bad:#b3261e;--bad-soft:#fbe3e1;color-scheme:light;background:#fff;color:#14202e}
+.export{position:fixed;left:0;top:0;width:720px;z-index:-1;pointer-events:none;font-family:var(--font-body);font-size:14px;line-height:1.5}
+.export .quote{border:0;border-radius:0}
+.export .num,.export .qhead b,.export .save{font-variant-numeric:normal!important;letter-spacing:normal!important}
+.modal{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(8,14,20,.6);padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.modalbox{background:var(--surface);border-radius:8px;width:100%;max-width:560px;max-height:100%;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.modalbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.modalimg img{display:block;width:100%;height:auto;border:1px solid var(--line)}
+
 /* mobile bar */
 .mbar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);z-index:5}
 .mbar .l{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
@@ -173,7 +211,7 @@ table.sch{border-collapse:collapse;width:100%;min-width:820px}
 
   <section id="p-quote" role="tabpanel" aria-labelledby="tab-quote">
     <div class="cols">
-      <div>
+      <div class="col-left">
         <div class="step">
           <h2><span class="n">1</span>Học viên và tư vấn viên</h2>
           <div class="grid2">
@@ -236,7 +274,20 @@ table.sch{border-collapse:collapse;width:100%;min-width:820px}
         </details>
       </div>
 
-      <aside class="quote" id="quotePanel" aria-live="polite"></aside>
+      <div class="rightcol">
+        <div class="qtools">
+          <label class="check"><input type="checkbox" id="showPay" checked><span>Hiện thông tin thanh toán trên phiếu</span></label>
+          <label class="check"><input type="checkbox" id="studentView"><span>Chế độ gửi học viên<small>Ẩn lưu ý, gợi ý và các nút nội bộ. Dùng khi chụp màn hình hoặc xuất PDF.</small></span></label>
+          <div class="actions">
+            <button class="btn primary" id="btnImg" type="button">Xuất ảnh gửi học viên</button>
+            <button class="btn" id="copyQuote" type="button">Sao chép gửi Zalo</button>
+            <button class="btn" id="copyCk" type="button">Sao chép nội dung CK</button>
+          </div>
+          <div id="copyMsg" class="hint" role="status" style="margin-top:6px"></div>
+          <textarea id="fallback" hidden readonly aria-label="Nội dung báo giá"></textarea>
+        </div>
+        <aside class="quote" id="quotePanel" aria-live="polite"></aside>
+      </div>
     </div>
   </section>
 
@@ -254,6 +305,15 @@ table.sch{border-collapse:collapse;width:100%;min-width:820px}
 
 <div class="mbar" id="mbar"><div><div class="l">Học phí áp dụng</div><div class="v num" id="mbarVal">0đ</div></div><button class="btn primary" id="mbarGo" type="button">Xem phiếu</button></div>
 
+<div id="imgModal" class="modal" hidden role="dialog" aria-modal="true" aria-label="Ảnh báo giá">
+  <div class="modalbox">
+    <div class="modalbar"><b>Ảnh báo giá gửi học viên</b><button class="btn small" id="imgClose" type="button">Đóng</button></div>
+    <div class="modalimg"><img id="imgPrev" alt="Ảnh báo giá gửi học viên"></div>
+    <div class="actions"><a class="btn primary" id="imgDl" role="button">Tải ảnh PNG</a><button class="btn" id="imgShare" type="button">Chia sẻ hoặc lưu vào Ảnh</button></div>
+    <p class="hint" style="margin:0">Trên điện thoại, nếu nút tải không hoạt động, nhấn giữ vào ảnh rồi chọn Lưu ảnh. Trên máy tính, bấm chuột phải vào ảnh và chọn Lưu hình ảnh thành.</p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function(){
 'use strict';
@@ -327,7 +387,8 @@ function holdInfo(kg,today){
 
 /* ===== Trạng thái ===== */
 var today=new Date(); today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
-var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{}};
+var lastQuoteHTML='';
+var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPay:true,student:false};
 try{var saved=localStorage.getItem('sapp_tvts'); if(saved!==null && TVTS[+saved]) S.tvts=+saved;}catch(e){}
 function getCls(){return CLASSES.filter(function(c){return c.code===S.classCode;})[0]||null;}
 (function pickDefault(){
@@ -420,11 +481,15 @@ function renderQuote(r){
   var ok=!r.errors.length;
   h+='<div class="qhead"><div><b>SAPP ACADEMY</b><span>Phiếu báo giá học phí CFA®</span></div><div><span>Ngày báo giá</span><b class="num" style="letter-spacing:0">'+dmy(r.qd)+'</b></div></div>';
   h+='<div class="qbody">';
-  h+='<div class="checks">';
-  if(ok && !r.notes.length) h+='<div class="note ok">Sẵn sàng báo giá.</div>';
-  r.errors.forEach(function(e){h+='<div class="note bad">'+esc(e)+'</div>';});
-  r.notes.forEach(function(e){h+='<div class="note warn">'+esc(e)+'</div>';});
-  h+='</div>';
+  var nf=r.errors.length+r.notes.length;
+  if(!nf) h+='<div class="note ok internal">Sẵn sàng báo giá.</div>';
+  else{
+    h+='<details class="internal flags" data-k="flags"'+(S.open.flags?' open':'')+'><summary class="'+(r.errors.length?'bad':'warn')+'">'
+      +(r.errors.length?'Có '+r.errors.length+' lỗi cần xem'+(r.notes.length?' và '+r.notes.length+' lưu ý':''):'Có '+nf+' lưu ý')+'</summary><div class="checks">';
+    r.errors.forEach(function(e){h+='<div class="note bad">'+esc(e)+'</div>';});
+    r.notes.forEach(function(e){h+='<div class="note warn">'+esc(e)+'</div>';});
+    h+='</div></details>';
+  }
   h+='<dl class="kv">'
     +'<dt>Học viên</dt><dd>'+(S.name.trim()?esc(S.name.trim()):'<span style="color:var(--muted)">(chưa nhập)</span>')+'</dd>'
     +'<dt>Liên hệ</dt><dd>'+esc([S.phone.trim(),S.email.trim()].filter(Boolean).join(' · ')||'(chưa nhập)')+'</dd>'
@@ -452,14 +517,14 @@ function renderQuote(r){
     +'<div class="words">Bằng chữ: '+readVN(r.final)+'.</div></div>';
   h+='<dl class="kv"><dt>Hiệu lực đến hết</dt><dd><b>'+(r.valid?dmy(r.valid):'(chưa có)')+'</b></dd></dl>';
   var tp=tips(r);
-  if(tp.length){h+='<div><div class="lbl" style="margin-bottom:6px">Gợi ý chốt deal</div><div class="tips">'+tp.map(function(x){return '<div class="tip">'+x+'</div>';}).join('')+'</div></div>';}
+  if(tp.length){h+='<details class="internal tipsbox" data-k="tips"'+(S.open.tips?' open':'')+'><summary>Gợi ý chốt deal ('+tp.length+')</summary><div class="tips">'+tp.map(function(x){return '<div class="tip">'+x+'</div>';}).join('')+'</div></details>';}
   var ck=transferContent();
-  h+='<div class="pay"><div class="lbl" style="margin-bottom:6px">Thanh toán</div><dl class="kv"><dt>Ngân hàng</dt><dd>'+BANK.bank+'</dd><dt>Số tài khoản</dt><dd class="mono">'+BANK.acc+'</dd><dt>Chủ tài khoản</dt><dd>'+BANK.owner+'</dd><dt>Nội dung CK</dt><dd>'+esc(ck)+'</dd></dl></div>';
+  if(S.showPay) h+='<div class="pay"><div class="lbl" style="margin-bottom:6px">Thanh toán</div><dl class="kv"><dt>Ngân hàng</dt><dd>'+BANK.bank+'</dd><dt>Số tài khoản</dt><dd class="mono">'+BANK.acc+'</dd><dt>Chủ tài khoản</dt><dd>'+BANK.owner+'</dd><dt>Nội dung CK</dt><dd>'+esc(ck)+'</dd></dl></div>';
   h+='<ul class="fine"><li>Học phí tính theo ngày tiền về tài khoản SAPP. Hoàn tất sau ngày khai giảng không có ưu đãi đăng ký sớm.</li><li>Ưu đãi áp dụng khi học viên đáp ứng đúng điều kiện ghi trên phiếu.</li><li>Học phí đã gồm tài liệu học tập của SAPP, chưa gồm phí đăng ký và phí thi của CFA Institute.</li><li>Bảo lưu, chuyển lớp và hoàn phí theo quy định hiện hành của SAPP Academy.</li></ul>';
-  h+='<div class="actions"><button class="btn primary" id="copyQuote" type="button">Sao chép báo giá để gửi Zalo</button><button class="btn" id="copyCk" type="button">Sao chép nội dung CK</button></div>';
-  h+='<div id="copyMsg" class="hint" role="status"></div><textarea id="fallback" hidden readonly aria-label="Nội dung báo giá"></textarea>';
   h+='</div>';
+  lastQuoteHTML=h;
   $('#quotePanel').innerHTML=h;
+  $('#quotePanel').classList.toggle('student',S.student);
   $('#mbarVal').textContent=fmt(r.final);
 }
 function transferContent(){ return [S.name.trim(),S.phone.trim()].filter(Boolean).join(' – ')||'Họ tên – Số điện thoại'; }
@@ -478,7 +543,7 @@ function quoteText(r){
   if(r.plan==='B') L.push('– '+r.nB+': giảm thêm '+pc(r.pB)+' trên học phí sau ưu đãi tháng');
   L.push('','HỌC PHÍ ÁP DỤNG: '+fmt(r.final),'('+readVN(r.final)+')');
   if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
-  L.push('','Chuyển khoản: '+BANK.bank+' – STK '+BANK.acc+' – '+BANK.owner,'Nội dung CK: '+transferContent());
+  if(S.showPay) L.push('','Chuyển khoản: '+BANK.bank+' – STK '+BANK.acc+' – '+BANK.owner,'Nội dung CK: '+transferContent());
   L.push('','Tư vấn viên: '+t[0]+' – '+t[1]+' – '+t[2],'Hotline '+BANK.hotline+' · '+BANK.web);
   return L.join('\n');
 }
@@ -610,10 +675,46 @@ $('#specialBox').addEventListener('change',function(e){
   var t=e.target, k=t.getAttribute('data-sp'); if(!k) return;
   S[k][t.getAttribute('data-i')]=t.checked; update();
 });
-$('#quotePanel').addEventListener('click',function(e){
-  var id=e.target.id;
-  if(id==='copyQuote') copy(quoteText(cur),'Đã sao chép báo giá. Dán vào Zalo hoặc email để gửi học viên.');
-  if(id==='copyCk') copy(transferContent(),'Đã sao chép nội dung chuyển khoản.');
+$('#copyQuote').addEventListener('click',function(){ copy(quoteText(cur),'Đã sao chép báo giá. Dán vào Zalo hoặc email để gửi học viên.'); });
+$('#copyCk').addEventListener('click',function(){ copy(transferContent(),'Đã sao chép nội dung chuyển khoản.'); });
+$('#showPay').addEventListener('change',function(e){S.showPay=e.target.checked;update();});
+$('#studentView').addEventListener('change',function(e){S.student=e.target.checked;update();});
+$('#quotePanel').addEventListener('toggle',function(e){var k=e.target.getAttribute&&e.target.getAttribute('data-k'); if(k) S.open[k]=e.target.open;},true);
+var imgBlob=null,imgName='Bao-gia-CFA.png',imgUrl='';
+function closeImg(){ $('#imgModal').hidden=true; if(imgUrl){URL.revokeObjectURL(imgUrl);imgUrl='';} $('#imgPrev').removeAttribute('src'); }
+function showImg(blob){
+  imgBlob=blob; imgName='Bao-gia-CFA'+(S.name.trim()?'-'+S.name.trim().replace(/[^\wÀ-ỹ]+/g,'-'):'')+'.png';
+  if(imgUrl) URL.revokeObjectURL(imgUrl);
+  imgUrl=URL.createObjectURL(blob);
+  $('#imgPrev').src=imgUrl; $('#imgDl').href=imgUrl; $('#imgDl').setAttribute('download',imgName);
+  $('#imgShare').hidden=!(navigator.canShare&&navigator.share);
+  $('#imgModal').hidden=false;
+}
+$('#btnImg').addEventListener('click',function(){
+  var msg=$('#copyMsg');
+  if(!window.html2canvas){ msg.textContent='Chưa tải được thư viện tạo ảnh. Kiểm tra kết nối mạng rồi tải lại trang, hoặc bật Chế độ gửi học viên rồi chụp màn hình.'; return; }
+  var host=document.createElement('div');
+  host.className='forcelight export';
+  host.innerHTML='<div class="quote student">'+lastQuoteHTML+'</div>';
+  document.body.appendChild(host);
+  msg.textContent='Đang tạo ảnh...';
+  function clean(){ if(host.parentNode) host.parentNode.removeChild(host); }
+  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){
+    return window.html2canvas(host,{scale:3,backgroundColor:'#ffffff',useCORS:true,logging:false,x:0,y:0,scrollX:0,scrollY:0});
+  }).then(function(canvas){
+    clean(); msg.textContent='';
+    canvas.toBlob(function(b){ if(b) showImg(b); else msg.textContent='Không tạo được ảnh. Hãy bật Chế độ gửi học viên rồi chụp màn hình.'; },'image/png');
+  }).catch(function(){ clean(); msg.textContent='Không tạo được ảnh. Hãy bật Chế độ gửi học viên rồi chụp màn hình.'; });
+});
+$('#imgClose').addEventListener('click',closeImg);
+$('#imgModal').addEventListener('click',function(e){ if(e.target.id==='imgModal') closeImg(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!$('#imgModal').hidden) closeImg(); });
+$('#imgShare').addEventListener('click',function(){
+  try{
+    var file=new File([imgBlob],imgName,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})) navigator.share({files:[file],title:'Báo giá học phí CFA'}).catch(function(){});
+    else $('#copyMsg').textContent='Thiết bị không hỗ trợ chia sẻ trực tiếp. Hãy nhấn giữ vào ảnh để lưu.';
+  }catch(x){}
 });
 $('#mbarGo').addEventListener('click',function(){ $('#quotePanel').scrollIntoView({behavior:'smooth',block:'start'}); });
 
