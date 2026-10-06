@@ -255,7 +255,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
           <label class="check"><input type="checkbox" id="group"><span>Đăng ký theo nhóm<small>Giảm 300.000đ cho mỗi học viên, không phân biệt số lượng thành viên.</small></span></label>
           <label class="check"><input type="checkbox" id="special"><span>Học viên thuộc đối tượng đặc biệt<small>Học bổng thành tích cuộc thi hoặc quyền lợi Đối tác và Cộng đồng SAPP.</small></span></label>
           <div id="specialBox" hidden>
-            <p class="hint" style="margin:4px 0 0">Tick mọi nhóm học viên thuộc về. Hệ thống so sánh và tự chọn phương án có học phí thấp nhất. Nhánh A và B không cộng dồn, trong Nhánh B chỉ lấy mức cao nhất.</p>
+            <p class="hint" style="margin:4px 0 0">Tick mọi nhóm học viên thuộc về. Hệ thống so sánh và tự chọn phương án có học phí thấp nhất. Nhánh A và B không cộng dồn, trong Nhánh B chỉ lấy mức cao nhất. Nhánh A (học bổng) không được hưởng ưu đãi đăng ký lộ trình và đăng ký sớm. Nhánh B tính trên học phí sau ưu đãi tháng nên vẫn gồm hai khoản này.</p>
             <div class="spgroup"><h3>Nhánh A · Học bổng thành tích (tính trên học phí gốc)</h3><div id="listA"></div></div>
             <div class="spgroup"><h3>Nhánh B · Đối tác và Cộng đồng (tính trên học phí sau ưu đãi tháng)</h3><div id="listB"></div></div>
           </div>
@@ -264,9 +264,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         <details class="rules">
           <summary>Cách tính ưu đãi tháng 10</summary>
           <ul>
-            <li><b>Đăng ký lộ trình:</b> 2 Level liên tiếp giảm 15%, trọn 3 Level giảm 30% trên tổng học phí gốc. Đăng ký lẻ 1 Level không có ưu đãi này.</li>
+            <li><b>Đăng ký lộ trình:</b> 2 Level liên tiếp giảm 15%, trọn 3 Level giảm 30% trên tổng học phí gốc. Đăng ký lẻ 1 Level không có ưu đãi này. Học bổng thành tích (Nhánh A) không được hưởng khoản này. Quyền lợi Đối tác và Cộng đồng (Nhánh B) tính trên học phí đã gồm khoản này.</li>
             <li><b>Học Face to face tại Hà Nội:</b> giảm 5% học phí gốc của từng Level học tại Hà Nội. F2F TP.HCM, Record và Live Online không áp dụng.</li>
-            <li><b>Đăng ký sớm:</b> tính theo số ngày từ ngày hoàn tất học phí đến ngày khai giảng lớp đầu tiên, trên tổng học phí gốc. Ngày hoàn tất là ngày tiền về tài khoản SAPP.</li>
+            <li><b>Đăng ký sớm:</b> không áp dụng cho học bổng thành tích (Nhánh A), vẫn gồm trong học phí tính quyền lợi Nhánh B. Tính theo số ngày từ ngày hoàn tất học phí đến ngày khai giảng lớp đầu tiên, trên tổng học phí gốc. Ngày hoàn tất là ngày tiền về tài khoản SAPP.</li>
             <li><b>Đóng nhóm:</b> 300.000đ mỗi học viên.</li>
             <li><b>Trần ưu đãi tháng:</b> tổng 4 khoản trên không vượt 45% học phí gốc. Với đối tượng đặc biệt, tổng ưu đãi không vượt 55%.</li>
           </ul>
@@ -412,22 +412,25 @@ function calc(){
     r.levels.push({lv:lv,form:form,region:region,price:BASE[form][lv-1]});
   }
   var n=r.levels.length; r.base=r.levels.reduce(function(a,l){return a+l.price;},0);
-  r.pathPct=PATH_PCT[n]; r.pathVal=r.base*r.pathPct;
-  r.hnBase=r.levels.filter(function(l){return l.form==='F2F'&&l.region==='HN';}).reduce(function(a,l){return a+l.price;},0);
-  r.hnVal=r.hnBase*HN_PCT;
-  r.daysToKG=r.valid?diff(r.valid,cls.kg):-1;
-  r.earlyIdx=r.daysToKG>=0?tierIdx(r.daysToKG):-1;
-  r.earlyPct=r.earlyIdx>=0?TIERS[r.earlyIdx].pct:0; r.earlyVal=r.base*r.earlyPct;
-  r.groupVal=S.group?GROUP_AMT:0;
-  r.raw=r.pathVal+r.hnVal+r.earlyVal+r.groupVal;
-  r.cap=r.base*CAP2; r.capped=r.raw>r.cap+0.5;
-  r.normalDisc=Math.min(r.raw,r.cap); r.normal=r.base-r.normalDisc;
-  /* Tầng 3 */
   var pA=0,nA='',pB=0,nB='';
   if(S.special){
     SP_A.forEach(function(x,i){ if(S.A[i]&&x[1]>pA){pA=x[1];nA=x[0];} });
     SP_B.forEach(function(x,i){ if(S.B[i]&&x[1]>pB){pB=x[1];nB=x[0];} });
   }
+  r.hasSp=!!(pA||pB);
+  r.pathOff=pA>0&&pB===0;
+  r.pathPct=r.pathOff?0:PATH_PCT[n]; r.pathVal=r.base*r.pathPct;
+  r.hnBase=r.levels.filter(function(l){return l.form==='F2F'&&l.region==='HN';}).reduce(function(a,l){return a+l.price;},0);
+  r.hnVal=r.hnBase*HN_PCT;
+  r.daysToKG=r.valid?diff(r.valid,cls.kg):-1;
+  r.earlyIdx=r.daysToKG>=0?tierIdx(r.daysToKG):-1;
+  r.earlyOff=r.pathOff;
+  r.earlyPct=(r.earlyIdx>=0&&!r.earlyOff)?TIERS[r.earlyIdx].pct:0; r.earlyVal=r.base*r.earlyPct;
+  r.groupVal=S.group?GROUP_AMT:0;
+  r.raw=r.pathVal+r.hnVal+r.earlyVal+r.groupVal;
+  r.cap=r.base*CAP2; r.capped=r.raw>r.cap+0.5;
+  r.normalDisc=Math.min(r.raw,r.cap); r.normal=r.base-r.normalDisc;
+  /* Tầng 3 */
   r.pA=pA;r.nA=nA;r.pB=pB;r.nB=nB;
   r.priceA=pA?r.base*(1-pA):null; r.priceB=pB?r.normal*(1-pB):null;
   var best=r.normal, plan='normal';
@@ -438,17 +441,18 @@ function calc(){
   r.plan=plan; r.final=Math.round(best); r.saved=r.base-r.final;
   /* Dòng ưu đãi */
   r.lines=[];
-  r.lines.push({t:'Ưu đãi đăng ký lộ trình',s:n>=2?'Đăng ký '+n+' Level liên tiếp · '+pc(r.pathPct)+' × học phí gốc':'Đăng ký lẻ 1 Level, không áp dụng',v:r.pathVal,on:r.pathVal>0});
+  r.lines.push({t:'Ưu đãi đăng ký lộ trình',s:r.pathOff?'Không áp dụng cho học bổng thành tích (Nhánh A)':(n>=2?'Đăng ký '+n+' Level liên tiếp · '+pc(r.pathPct)+' × học phí gốc':'Đăng ký lẻ 1 Level, không áp dụng'),v:r.pathVal,on:r.pathVal>0});
   r.lines.push({t:'Ưu đãi học Face to face tại Hà Nội',s:r.hnBase>0?pc(HN_PCT)+' × '+fmt(r.hnBase)+' (Level học tại Hà Nội)':'Không có Level F2F học tại Hà Nội',v:r.hnVal,on:r.hnVal>0});
-  r.lines.push({t:'Ưu đãi đăng ký sớm',s:r.earlyIdx>=0?(r.earlyIdx===0?'Hoàn tất trong 7 ngày cuối trước khai giảng, chưa có ưu đãi':'Mốc '+r.earlyIdx+' · '+pc(r.earlyPct)+' × học phí gốc · hoàn tất trước khai giảng '+r.daysToKG+' ngày'):'Hiệu lực sau ngày khai giảng, không áp dụng',v:r.earlyVal,on:r.earlyVal>0});
+  r.lines.push({t:'Ưu đãi đăng ký sớm',s:r.earlyOff?'Không áp dụng cho học bổng thành tích (Nhánh A)':r.earlyIdx>=0?(r.earlyIdx===0?'Hoàn tất trong 7 ngày cuối trước khai giảng, chưa có ưu đãi':'Mốc '+r.earlyIdx+' · '+pc(r.earlyPct)+' × học phí gốc · hoàn tất trước khai giảng '+r.daysToKG+' ngày'):'Hiệu lực sau ngày khai giảng, không áp dụng',v:r.earlyVal,on:r.earlyVal>0});
   r.lines.push({t:'Ưu đãi đóng nhóm',s:S.group?'Cố định 300.000đ mỗi học viên':'Không đăng ký theo nhóm',v:r.groupVal,on:r.groupVal>0});
   /* Cảnh báo */
   if(S.validity){
     if(r.valid<qd) r.errors.push('Hiệu lực báo giá ('+dmy(r.valid)+') đang trước ngày báo giá ('+dmy(qd)+').');
     else if(r.valid>cls.kg) r.errors.push('Hiệu lực báo giá ('+dmy(r.valid)+') sau ngày khai giảng ('+dmy(cls.kg)+'), nên không có ưu đãi đăng ký sớm.');
-    else if(r.autoValid && r.valid>r.autoValid) r.notes.push('Hiệu lực nhập tay ('+dmy(r.valid)+') muộn hơn ngày giữ mốc hiện tại ('+dmy(r.autoValid)+'), nên ưu đãi đăng ký sớm đã tụt xuống '+pc(r.earlyPct)+'.');
+    else if(r.autoValid && r.valid>r.autoValid && !r.earlyOff) r.notes.push('Hiệu lực nhập tay ('+dmy(r.valid)+') muộn hơn ngày giữ mốc hiện tại ('+dmy(r.autoValid)+'), nên ưu đãi đăng ký sớm đã tụt xuống '+pc(r.earlyPct)+'.');
     else if(r.autoValid && r.valid<r.autoValid) r.notes.push('Hiệu lực nhập tay sớm hơn ngày giữ mốc ('+dmy(r.autoValid)+'). Học viên có thể được hưởng mốc cao hơn nếu để ngày tự động.');
   }
+  if(r.pathOff && (n>=2||r.earlyIdx>0)) r.notes.push('Học bổng thành tích (Nhánh A) không áp dụng ưu đãi đăng ký lộ trình ('+pc(PATH_PCT[n])+' cho '+n+' Level) và ưu đãi đăng ký sớm.');
   if(!S.name.trim()) r.notes.push('Chưa nhập tên học viên.');
   if(!S.phone.trim()) r.notes.push('Chưa nhập số điện thoại.');
   if(r.capped) r.notes.push('Ưu đãi tháng chạm trần '+pc(CAP2)+'. Phần vượt '+fmt(r.raw-r.cap)+' không được áp dụng.');
@@ -461,13 +465,13 @@ function calc(){
 function tips(r){
   var out=[], cls=r.cls; if(!cls) return out;
   var maxN=4-cls.level;
-  if(S.n<maxN){
+  if(S.n<maxN && !r.pathOff){
     var nextLv=cls.level+S.n, np=PATH_PCT[S.n+1];
     var add=BASE[(S.forms[nextLv]||cls.form)][nextLv-1];
     var newBase=r.base+add, extra=newBase*np-r.base*r.pathPct;
     out.push('Đăng ký thêm <b>Level '+nextLv+'</b>: ưu đãi lộ trình tăng từ <b>'+pc(r.pathPct)+'</b> lên <b>'+pc(np)+'</b> trên toàn bộ lộ trình (ưu đãi lộ trình tăng thêm khoảng '+fmt(extra)+').');
   }
-  if(r.hi && !r.hi.started && r.hi.m>0){
+  if(r.hi && !r.hi.started && r.hi.m>0 && !r.earlyOff){
     var drop=r.base*(r.hi.pct-r.hi.nextPct);
     var when=r.hi.left<=0?'Hôm nay là ngày cuối':'Còn '+r.hi.left+' ngày';
     out.push(when+' để giữ <b>mốc '+r.hi.m+' ('+pc(r.hi.pct)+')</b>, hoàn tất học phí đến hết '+dmy(r.hi.deadline)+'. Sau đó tụt xuống mốc '+(r.hi.m-1)+' ('+pc(r.hi.nextPct)+'), học phí tăng khoảng <b>'+fmt(drop)+'</b>.');
@@ -505,7 +509,7 @@ function renderQuote(r){
     h+='<div class="ln disc'+(l.on?'':' off')+'"><div class="t">'+l.t+'<small>'+esc(l.s)+'</small></div><div class="v num">'+(l.on?'− '+fmt(l.v):'0đ')+'</div></div>';
   });
   if(r.capped) h+='<div class="ln"><div class="t">Điều chỉnh về trần '+pc(CAP2)+'<small>Phần vượt trần không áp dụng</small></div><div class="v num">+ '+fmt(r.raw-r.cap)+'</div></div>';
-  h+='<div class="ln sub"><div class="t">Học phí sau ưu đãi tháng</div><div class="v num">'+fmt(r.normal)+'</div></div>';
+  h+='<div class="ln sub"><div class="t">Học phí sau ưu đãi tháng'+(r.pathOff?'<small style="font-weight:400;color:var(--muted)">Không gồm ưu đãi đăng ký lộ trình</small>':'')+'</div><div class="v num">'+fmt(r.normal)+'</div></div>';
   if(S.special && (r.pA||r.pB)){
     if(r.pA) h+='<div class="ln'+(r.plan==='A'?' disc':' off')+'"><div class="t">Nhánh A · '+esc(r.nA)+'<small>'+pc(r.pA)+' × học phí gốc = '+fmt(r.priceA)+'</small></div><div class="v num">'+(r.plan==='A'?'Áp dụng':'Không chọn')+'</div></div>';
     if(r.pB) h+='<div class="ln'+(r.plan==='B'?' disc':' off')+'"><div class="t">Nhánh B · '+esc(r.nB)+'<small>Giảm thêm '+pc(r.pB)+' × học phí sau ưu đãi tháng = '+fmt(r.priceB)+'</small></div><div class="v num">'+(r.plan==='B'?'Áp dụng':'Không chọn')+'</div></div>';
@@ -575,7 +579,7 @@ function update(){
   var vh='';
   if(cur.valid){
     vh=S.validity?'Đang nhập tay. Ngày tự động là '+(cur.autoValid?dmy(cur.autoValid):'(không có)')+'. ':'Tự động: ngày cuối giữ mốc hiện tại. ';
-    vh+=cur.earlyIdx>=0?'Hoàn tất học phí đến hết ngày này thì được mốc '+cur.earlyIdx+' ('+pc(cur.earlyPct)+').':'Không có ưu đãi đăng ký sớm.';
+    vh+=cur.earlyOff?'Học bổng thành tích (Nhánh A) không áp dụng ưu đãi đăng ký sớm.':cur.earlyIdx>=0?'Hoàn tất học phí đến hết ngày này thì được mốc '+cur.earlyIdx+' ('+pc(cur.earlyPct)+').':'Không có ưu đãi đăng ký sớm.';
   }
   $('#validHint').textContent=vh;
   if($('#p-sched').hidden===false) renderSched();
