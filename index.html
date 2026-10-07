@@ -288,6 +288,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
         <div class="step">
           <h2><span class="n">4</span>Ưu đãi thêm</h2>
+          <label class="check"><input type="checkbox" id="off1" checked><span>Không ưu đãi khi đăng ký 1 Level<small>Bật: nếu chỉ đăng ký 1 Level thì bán đúng học phí gốc. Đăng ký từ 2 Level vẫn có ưu đãi như bình thường.</small></span></label>
           <label class="check"><input type="checkbox" id="group"><span>Đăng ký theo nhóm<small>Giảm 300.000đ cho mỗi học viên, không phân biệt số lượng thành viên.</small></span></label>
           <label class="check"><input type="checkbox" id="special"><span>Học viên thuộc đối tượng đặc biệt<small>Học bổng thành tích cuộc thi hoặc quyền lợi Đối tác và Cộng đồng SAPP.</small></span></label>
           <div id="specialBox" hidden>
@@ -438,7 +439,7 @@ function holdInfo(kg,today){
 /* ===== Trạng thái ===== */
 var today=new Date(); today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 var lastQuoteHTML='';
-var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPkg:true,cmp:false,pkgSel:{},student:false};
+var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPkg:true,cmp:false,off1:true,pkgSel:{},student:false};
 try{var saved=localStorage.getItem('sapp_tvts'); if(saved!==null && TVTS[+saved]) S.tvts=+saved;}catch(e){}
 function getCls(){return CLASSES.filter(function(c){return c.code===S.classCode;})[0]||null;}
 (function pickDefault(){
@@ -477,7 +478,8 @@ function calc(){
   r.pkgs.forEach(function(g){ g.all.forEach(function(x){ if(g.items.indexOf(x)<0 && pkOn(g,x)) outPk.push(x+' ('+FORM_NAME[g.form]+')'); }); });
   if(outPk.length) r.notes.push('Phiếu đang hiển thị quyền lợi ngoài gói: '+outPk.join('; ')+'. Hãy chắc chắn học viên được hưởng.');
   var pA=0,nA='',pB=0,nB='';
-  if(S.special){
+  var off1=S.off1&&n===1; r.off1=off1;
+  if(S.special&&!off1){
     SP_A.forEach(function(x,i){ if(S.A[i]&&x[1]>pA){pA=x[1];nA=x[0];} });
     SP_B.forEach(function(x,i){ if(S.B[i]&&x[1]>pB){pB=x[1];nB=x[0];} });
   }
@@ -485,12 +487,12 @@ function calc(){
   r.pathOff=pA>0&&pB===0;
   r.pathPct=r.pathOff?0:PATH_PCT[n]; r.pathVal=r.base*r.pathPct;
   r.hnBase=r.levels.filter(function(l){return l.form==='F2F'&&l.region==='HN';}).reduce(function(a,l){return a+l.price;},0);
-  r.hnVal=r.hnBase*HN_PCT;
+  r.hnVal=off1?0:r.hnBase*HN_PCT;
   r.daysToKG=r.valid?diff(r.valid,cls.kg):-1;
   r.earlyIdx=r.daysToKG>=0?tierIdx(r.daysToKG):-1;
   r.earlyOff=r.pathOff;
-  r.earlyPct=(r.earlyIdx>=0&&!r.earlyOff)?TIERS[r.earlyIdx].pct:0; r.earlyVal=r.base*r.earlyPct;
-  r.groupVal=S.group?GROUP_AMT:0;
+  r.earlyPct=(r.earlyIdx>=0&&!r.earlyOff&&!off1)?TIERS[r.earlyIdx].pct:0; r.earlyVal=r.base*r.earlyPct;
+  r.groupVal=(S.group&&!off1)?GROUP_AMT:0;
   r.raw=r.pathVal+r.hnVal+r.earlyVal+r.groupVal;
   r.cap=r.base*CAP2; r.capped=r.raw>r.cap+0.5;
   r.normalDisc=Math.min(r.raw,r.cap); r.normal=r.base-r.normalDisc;
@@ -509,6 +511,7 @@ function calc(){
   r.lines.push({t:'Ưu đãi học Face to face tại Hà Nội',s:r.hnBase>0?pc(HN_PCT)+' × '+fmt(r.hnBase)+' (Level học tại Hà Nội)':'Không có Level F2F học tại Hà Nội',v:r.hnVal,on:r.hnVal>0});
   r.lines.push({t:'Ưu đãi đăng ký sớm',s:r.earlyOff?'Không áp dụng cho học bổng thành tích (Nhánh A)':r.earlyIdx>=0?(r.earlyIdx===0?'Hoàn tất trong 7 ngày cuối trước khai giảng, chưa có ưu đãi':'Mốc '+r.earlyIdx+' · '+pc(r.earlyPct)+' × học phí gốc · hoàn tất trước khai giảng '+r.daysToKG+' ngày'):'Hiệu lực sau ngày khai giảng, không áp dụng',v:r.earlyVal,on:r.earlyVal>0});
   r.lines.push({t:'Ưu đãi đóng nhóm',s:S.group?'Cố định 300.000đ mỗi học viên':'Không đăng ký theo nhóm',v:r.groupVal,on:r.groupVal>0});
+  if(off1) r.notes.push('Đã tắt ưu đãi cho đăng ký 1 Level: chỉ bán học phí gốc.');
   /* Cảnh báo */
   if(S.validity){
     if(r.valid<qd) r.errors.push('Hiệu lực báo giá ('+dmy(r.valid)+') đang trước ngày báo giá ('+dmy(qd)+').');
@@ -814,6 +817,7 @@ $('#pkgList').addEventListener('change',function(e){var k=e.target.getAttribute(
 $('#pkgDefault').addEventListener('click',function(){S.pkgSel={};pkgKey='';update();});
 $('#pkgAll').addEventListener('click',function(){ (cur.pkgs||[]).forEach(function(g){ g.all.forEach(function(x){S.pkgSel[g.form+'|'+x]=true;}); }); pkgKey='';update(); });
 $('#pkgNone').addEventListener('click',function(){ (cur.pkgs||[]).forEach(function(g){ g.all.forEach(function(x){S.pkgSel[g.form+'|'+x]=false;}); }); pkgKey='';update(); });
+$('#off1').addEventListener('change',function(e){S.off1=e.target.checked;update();});
 $('#cmp').addEventListener('change',function(e){S.cmp=e.target.checked;update();});
 $('#showPkg').addEventListener('change',function(e){S.showPkg=e.target.checked;update();});
 $('#studentView').addEventListener('change',function(e){S.student=e.target.checked;update();});
