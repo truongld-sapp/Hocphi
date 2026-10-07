@@ -173,14 +173,13 @@ details.flags>.checks,details.tipsbox>.tips{padding:0 12px 12px}
   .qhead,.total,.ln,.pay{break-inside:avoid}
 }
 
-.pkg{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
-.pkg ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column}
-.pkg li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}
+.pkg{border:1.5px solid var(--good);border-radius:10px;padding:0;overflow:hidden;background:var(--good-soft)}
+.pkg .lbl{background:var(--good);color:var(--surface);margin:0;padding:9px 14px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.pkg ul{list-style:none;margin:0;padding:6px 14px 8px;display:flex;flex-direction:column}
+.pkg li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--good);flex-direction:row-reverse;justify-content:flex-end}
 .pkg li:last-child{border-bottom:0}
-.pkg li span{min-width:0}
-.pkg li b{white-space:nowrap}
-.pkg li small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
-.pkg li i{font-style:normal;color:var(--good);font-weight:700}
+.pkg li span{min-width:0;font-weight:600;font-size:14.5px;color:var(--ink)}
+.pkg li i{font-style:normal;flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--good);color:var(--surface);font-size:13px;font-weight:800;line-height:1}
 /* image export */
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .forcelight{--bg:#fff;--surface:#fff;--surface2:#f6f8fa;--ink:#14202e;--muted:#566475;--line:#dce1e8;--accent:#0a6e68;--accent-ink:#fff;--accent-soft:#dff1ef;--good:#1c7a3e;--good-soft:#e1f3e6;--warn:#8a5200;--warn-soft:#fdf0d6;--bad:#b3261e;--bad-soft:#fbe3e1;color-scheme:light;background:#fff;color:#14202e}
@@ -292,13 +291,11 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 
       <div class="rightcol">
         <div class="qtools">
-          <label class="check"><input type="checkbox" id="showPay" checked><span>Hiện thông tin thanh toán trên phiếu</span></label>
           <label class="check"><input type="checkbox" id="showPkg" checked><span>Hiện quyền lợi gói đăng ký trên phiếu</span></label>
           <label class="check"><input type="checkbox" id="studentView"><span>Chế độ gửi học viên<small>Ẩn lưu ý, gợi ý và các nút nội bộ. Dùng khi chụp màn hình hoặc xuất PDF.</small></span></label>
           <div class="actions">
             <button class="btn primary" id="btnImg" type="button">Xuất ảnh gửi học viên</button>
             <button class="btn" id="copyQuote" type="button">Sao chép gửi Zalo</button>
-            <button class="btn" id="copyCk" type="button">Sao chép nội dung CK</button>
           </div>
           <div id="copyMsg" class="hint" role="status" style="margin-top:6px"></div>
           <textarea id="fallback" hidden readonly aria-label="Nội dung báo giá"></textarea>
@@ -419,7 +416,7 @@ function holdInfo(kg,today){
 /* ===== Trạng thái ===== */
 var today=new Date(); today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 var lastQuoteHTML='';
-var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPay:true,showPkg:true,pkgSel:{},student:false};
+var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPkg:true,pkgSel:{},student:false};
 try{var saved=localStorage.getItem('sapp_tvts'); if(saved!==null && TVTS[+saved]) S.tvts=+saved;}catch(e){}
 function getCls(){return CLASSES.filter(function(c){return c.code===S.classCode;})[0]||null;}
 (function pickDefault(){
@@ -575,7 +572,7 @@ function renderQuote(r){
     +'<dt>Lớp đầu tiên</dt><dd><span class="mono">'+(r.cls?esc(r.cls.code):'')+'</span>'+(r.cls?' · khai giảng '+dmy(r.cls.kg):'')+'</dd></dl>';
   h+='<div class="lines">';
   r.levels.forEach(function(l){
-    h+='<div class="ln"><div class="t">CFA Level '+l.lv+'<small>'+FORM_NAME[l.form]+' · '+REGION_NAME[l.region]+'</small></div><div class="v num">'+fmt(l.price)+'</div></div>';
+    h+='<div class="ln"><div class="t">CFA Level '+l.lv+'</div><div class="v num">'+fmt(l.price)+'</div></div>';
   });
   h+='<div class="ln sub"><div class="t">Học phí gốc ('+r.levels.length+' Level)</div><div class="v num">'+fmt(r.base)+'</div></div>';
   r.lines.forEach(function(l){
@@ -597,12 +594,10 @@ function renderQuote(r){
   var pkAll=pkUnion(r);
   if(S.showPkg && pkAll.length){
     h+='<div class="pkg"><div class="lbl">Quyền lợi học tập</div><ul>'
-      +pkAll.map(function(x){return '<li><span>'+esc(x.name)+'<small>'+esc(x.attr)+'</small></span><i aria-label="Có">✓</i></li>';}).join('')+'</ul></div>';
+      +pkAll.map(function(x){return '<li><span>'+esc(x.name)+'</span><i aria-label="Có">✓</i></li>';}).join('')+'</ul></div>';
   }
   var tp=tips(r);
   if(tp.length){h+='<details class="internal tipsbox" data-k="tips"'+(S.open.tips?' open':'')+'><summary>Gợi ý chốt deal ('+tp.length+')</summary><div class="tips">'+tp.map(function(x){return '<div class="tip">'+x+'</div>';}).join('')+'</div></details>';}
-  var ck=transferContent();
-  if(S.showPay) h+='<div class="pay"><div class="lbl" style="margin-bottom:6px">Thanh toán</div><dl class="kv"><dt>Ngân hàng</dt><dd>'+BANK.bank+'</dd><dt>Số tài khoản</dt><dd class="mono">'+BANK.acc+'</dd><dt>Chủ tài khoản</dt><dd>'+BANK.owner+'</dd><dt>Nội dung CK</dt><dd>'+esc(ck)+'</dd></dl></div>';
   h+='<ul class="fine"><li>Học phí tính theo ngày tiền về tài khoản SAPP. Hoàn tất sau ngày khai giảng không có ưu đãi đăng ký sớm.</li><li>Ưu đãi áp dụng khi học viên đáp ứng đúng điều kiện ghi trên phiếu.</li><li>Học phí đã gồm tài liệu học tập của SAPP, chưa gồm phí đăng ký và phí thi của CFA Institute.</li><li>Bảo lưu, chuyển lớp và hoàn phí theo quy định hiện hành của SAPP Academy.</li></ul>';
   h+='</div>';
   lastQuoteHTML=h;
@@ -618,17 +613,16 @@ function quoteText(r){
   L.push('Học viên: '+(S.name.trim()||'...')+(S.phone.trim()?' – '+S.phone.trim():''));
   if(r.cls) L.push('Lớp khai giảng đầu tiên: '+r.cls.code+' (khai giảng '+dmy(r.cls.kg)+')');
   L.push('');
-  r.levels.forEach(function(l){L.push('• CFA Level '+l.lv+' – '+FORM_NAME[l.form]+' ('+REGION_NAME[l.region]+'): '+fmt(l.price));});
+  r.levels.forEach(function(l){L.push('• CFA Level '+l.lv+': '+fmt(l.price));});
   L.push('Học phí gốc: '+fmt(r.base));
   r.lines.forEach(function(l){ if(l.on) L.push('– '+l.t.replace('Ưu đãi ','Ưu đãi ')+': −'+fmt(l.v)); });
   if(r.capped) L.push('– Điều chỉnh về trần '+pc(CAP2)+': +'+fmt(r.raw-r.cap));
   if(r.plan==='A') L.push('– '+r.nA+' ('+pc(r.pA)+' học phí gốc) thay thế ưu đãi tháng');
   if(r.plan==='B') L.push('– '+r.nB+': giảm thêm '+pc(r.pB)+' trên học phí sau ưu đãi tháng');
   var pu=S.showPkg?pkUnion(r):[];
-  if(pu.length){ L.push('','Quyền lợi học tập:'); pu.forEach(function(x){L.push('✓ '+x.name+' ('+x.attr+')');}); }
+  if(pu.length){ L.push('','Quyền lợi học tập:'); pu.forEach(function(x){L.push('✓ '+x.name+'');}); }
   L.push('','HỌC PHÍ ÁP DỤNG: '+fmt(r.final),'('+readVN(r.final)+')');
   if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
-  if(S.showPay) L.push('','Chuyển khoản: '+BANK.bank+' – STK '+BANK.acc+' – '+BANK.owner,'Nội dung CK: '+transferContent());
   L.push('','Tư vấn viên: '+t[0]+' – '+t[1]+' – '+t[2],'Hotline '+BANK.hotline+' · '+BANK.web);
   return L.join('\n');
 }
@@ -761,8 +755,6 @@ $('#specialBox').addEventListener('change',function(e){
   S[k][t.getAttribute('data-i')]=t.checked; update();
 });
 $('#copyQuote').addEventListener('click',function(){ copy(quoteText(cur),'Đã sao chép báo giá. Dán vào Zalo hoặc email để gửi học viên.'); });
-$('#copyCk').addEventListener('click',function(){ copy(transferContent(),'Đã sao chép nội dung chuyển khoản.'); });
-$('#showPay').addEventListener('change',function(e){S.showPay=e.target.checked;update();});
 $('#pkgList').addEventListener('change',function(e){var k=e.target.getAttribute('data-pk'); if(k===null) return; S.pkgSel[k]=e.target.checked; update();});
 $('#pkgDefault').addEventListener('click',function(){S.pkgSel={};pkgKey='';update();});
 $('#pkgAll').addEventListener('click',function(){ (cur.pkgs||[]).forEach(function(g){ g.all.forEach(function(x){S.pkgSel[g.form+'|'+x]=true;}); }); pkgKey='';update(); });
