@@ -173,6 +173,14 @@ details.flags>.checks,details.tipsbox>.tips{padding:0 12px 12px}
   .qhead,.total,.ln,.pay{break-inside:avoid}
 }
 
+.pkg{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.pkg ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column}
+.pkg li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)}
+.pkg li:last-child{border-bottom:0}
+.pkg li span{min-width:0}
+.pkg li b{white-space:nowrap}
+.pkg li small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.pkg li i{font-style:normal;color:var(--good);font-weight:700}
 /* image export */
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .forcelight{--bg:#fff;--surface:#fff;--surface2:#f6f8fa;--ink:#14202e;--muted:#566475;--line:#dce1e8;--accent:#0a6e68;--accent-ink:#fff;--accent-soft:#dff1ef;--good:#1c7a3e;--good-soft:#e1f3e6;--warn:#8a5200;--warn-soft:#fdf0d6;--bad:#b3261e;--bad-soft:#fbe3e1;color-scheme:light;background:#fff;color:#14202e}
@@ -251,7 +259,15 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
         </div>
 
         <div class="step">
-          <h2><span class="n">3</span>Ưu đãi thêm</h2>
+          <h2><span class="n">3</span>Quyền lợi học tập hiển thị trên phiếu</h2>
+          <p class="hint" style="margin:0 0 6px"><b id="pkgTitle"></b></p>
+          <p class="hint" style="margin:0 0 8px">Danh sách gồm đầy đủ quyền lợi của hình thức học. Mặc định tick đúng quyền lợi của gói. Bạn tick hoặc bỏ tick tùy ý, chỉ quyền lợi được tick mới hiện trên phiếu, bản sao chép và ảnh. Quyền lợi ngoài gói có nhãn cảnh báo và có lưu ý nội bộ. Danh sách tự đổi theo hình thức học và số Level. Nếu lộ trình trộn nhiều hình thức, mỗi hình thức có một gói riêng theo số Level học hình thức đó.</p>
+          <div id="pkgList"></div>
+          <div class="actions" style="margin-top:8px"><button class="btn small" id="pkgDefault" type="button">Theo đúng gói</button><button class="btn small" id="pkgAll" type="button">Chọn tất cả</button><button class="btn small" id="pkgNone" type="button">Bỏ chọn tất cả</button></div>
+        </div>
+
+        <div class="step">
+          <h2><span class="n">4</span>Ưu đãi thêm</h2>
           <label class="check"><input type="checkbox" id="group"><span>Đăng ký theo nhóm<small>Giảm 300.000đ cho mỗi học viên, không phân biệt số lượng thành viên.</small></span></label>
           <label class="check"><input type="checkbox" id="special"><span>Học viên thuộc đối tượng đặc biệt<small>Học bổng thành tích cuộc thi hoặc quyền lợi Đối tác và Cộng đồng SAPP.</small></span></label>
           <div id="specialBox" hidden>
@@ -277,6 +293,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
       <div class="rightcol">
         <div class="qtools">
           <label class="check"><input type="checkbox" id="showPay" checked><span>Hiện thông tin thanh toán trên phiếu</span></label>
+          <label class="check"><input type="checkbox" id="showPkg" checked><span>Hiện quyền lợi gói đăng ký trên phiếu</span></label>
           <label class="check"><input type="checkbox" id="studentView"><span>Chế độ gửi học viên<small>Ẩn lưu ý, gợi ý và các nút nội bộ. Dùng khi chụp màn hình hoặc xuất PDF.</small></span></label>
           <div class="actions">
             <button class="btn primary" id="btnImg" type="button">Xuất ảnh gửi học viên</button>
@@ -331,6 +348,20 @@ var TVTS=[
  ['Trần Thị Vân Anh','0984726648','anhttv@sapp.edu.vn'],['Nguyễn Thị Linh Trang','0961774426','trangntl@sapp.edu.vn'],
  ['Đỗ Mai Linh','0838026585','linhdm@sapp.edu.vn'],['Trần Phương Linh','0868071063','linhtp@sapp.edu.vn'],
  ['Mai Thanh Hiền','0374776146','hienmt@sapp.edu.vn'],['Đặng Huỳnh Lan Phương','0352799254','phuongdhl01@sapp.edu.vn']];
+var CHARTER='Gửi thư giới thiệu của 2-3 CFA Charterholder';
+var PKG={
+  RO:{names:['Basic','Standard','Elite'],term:['8 tháng','36 tháng','48 tháng'],items:[
+    ['Hỗ trợ ôn thi',[1,1,1]],['Cấp chứng chỉ hoàn thành khóa học',[1,1,1]],
+    ['Bảo lưu',[0,1,1]],['Review bài luận',[0,0,1]],[CHARTER,[0,0,1]]]},
+  LO:{names:['1 level','2 levels','3 levels'],term:['2 năm','3 năm','4 năm'],items:[
+    ['Cam kết chất lượng đầu ra',[1,1,1]],['Bảo lưu',[1,1,1]],['Hỗ trợ ôn thi',[1,1,1]],['Cấp chứng chỉ hoàn thành khóa học',[1,1,1],[1]],
+    ['Học lại',[0,0,1]],['Review bài luận',[0,0,1]],[CHARTER,[0,0,1]]]},
+  F2F:{names:['Basic','Standard','Premium'],term:['2 năm','3 năm','4 năm'],items:[
+    ['Cam kết chất lượng đầu ra',[1,1,1]],['Bảo lưu',[1,1,1]],['Hỗ trợ ôn thi',[1,1,1]],['Cấp chứng chỉ hoàn thành khóa học',[1,1,1],[1]],
+    ['Học lại',[0,0,1]],['Review bài luận',[0,0,1]],[CHARTER,[0,0,1]]]}
+};
+var SHORT={RO:'Record Online',LO:'Live Online',F2F:'Face to face'};
+var PKG_ORDER=['Hỗ trợ ôn thi','Cấp chứng chỉ hoàn thành khóa học','Cam kết chất lượng đầu ra','Bảo lưu','Học lại','Review bài luận',CHARTER];
 var BANK={bank:'Ngân hàng TMCP Quân đội (MB)',acc:'303886688',owner:'CÔNG TY TNHH GIÁO DỤC SCFA',hotline:'1900 2225',web:'sapp.edu.vn'};
 
 function D(s){var p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
@@ -388,7 +419,7 @@ function holdInfo(kg,today){
 /* ===== Trạng thái ===== */
 var today=new Date(); today=new Date(today.getFullYear(),today.getMonth(),today.getDate());
 var lastQuoteHTML='';
-var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPay:true,student:false};
+var S={name:'',phone:'',email:'',tvts:1,qdate:iso(today),classCode:'',n:3,forms:{},regions:{},validity:'',group:false,special:false,A:{},B:{},open:{},showPay:true,showPkg:true,pkgSel:{},student:false};
 try{var saved=localStorage.getItem('sapp_tvts'); if(saved!==null && TVTS[+saved]) S.tvts=+saved;}catch(e){}
 function getCls(){return CLASSES.filter(function(c){return c.code===S.classCode;})[0]||null;}
 (function pickDefault(){
@@ -412,6 +443,20 @@ function calc(){
     r.levels.push({lv:lv,form:form,region:region,price:BASE[form][lv-1]});
   }
   var n=r.levels.length; r.base=r.levels.reduce(function(a,l){return a+l.price;},0);
+  r.pkgs=[];
+  r.levels.forEach(function(l){
+    var g=r.pkgs.filter(function(x){return x.form===l.form;})[0];
+    if(!g){g={form:l.form,lvs:[],count:0};r.pkgs.push(g);}
+    g.lvs.push(l.lv); g.count++;
+  });
+  r.pkgs.forEach(function(g){
+    var PK=PKG[g.form]; g.name=PK.names[n-1]; g.term=PK.term[n-1];
+    g.items=PK.items.filter(function(x){return x[1][n-1]&&(!x[2]||g.lvs.some(function(q){return x[2].indexOf(q)>=0;}));}).map(function(x){return x[0];});
+    g.all=PK.items.map(function(x){return x[0];});
+  });
+  var outPk=[];
+  r.pkgs.forEach(function(g){ g.all.forEach(function(x){ if(g.items.indexOf(x)<0 && pkOn(g,x)) outPk.push(x+' ('+FORM_NAME[g.form]+')'); }); });
+  if(outPk.length) r.notes.push('Phiếu đang hiển thị quyền lợi ngoài gói: '+outPk.join('; ')+'. Hãy chắc chắn học viên được hưởng.');
   var pA=0,nA='',pB=0,nB='';
   if(S.special){
     SP_A.forEach(function(x,i){ if(S.A[i]&&x[1]>pA){pA=x[1];nA=x[0];} });
@@ -469,7 +514,7 @@ function tips(r){
     var nextLv=cls.level+S.n, np=PATH_PCT[S.n+1];
     var add=BASE[(S.forms[nextLv]||cls.form)][nextLv-1];
     var newBase=r.base+add, extra=newBase*np-r.base*r.pathPct;
-    out.push('Đăng ký thêm <b>Level '+nextLv+'</b>: ưu đãi lộ trình tăng từ <b>'+pc(r.pathPct)+'</b> lên <b>'+pc(np)+'</b> trên toàn bộ lộ trình (ưu đãi lộ trình tăng thêm khoảng '+fmt(extra)+').');
+    out.push('Đăng ký thêm <b>Level '+nextLv+'</b>: ưu đãi lộ trình tăng từ <b>'+pc(r.pathPct)+'</b> lên <b>'+pc(np)+'</b> trên toàn bộ lộ trình (ưu đãi lộ trình tăng thêm khoảng '+fmt(extra)+').'+pkgUp(r,(S.forms[nextLv]||cls.form)));
   }
   if(r.hi && !r.hi.started && r.hi.m>0 && !r.earlyOff){
     var drop=r.base*(r.hi.pct-r.hi.nextPct);
@@ -480,6 +525,35 @@ function tips(r){
   return out;
 }
 
+function pkOn(g,x){ var k=g.form+'|'+x; if(Object.prototype.hasOwnProperty.call(S.pkgSel,k)) return S.pkgSel[k]; return x==='__term'||g.items.indexOf(x)>=0; }
+function pkUnion(r){
+  var map={};
+  r.pkgs.forEach(function(g){ g.all.forEach(function(x){ if(!pkOn(g,x)) return; (map[x]=map[x]||[]).push(g); }); });
+  var names=Object.keys(map).sort(function(a,b){var ia=PKG_ORDER.indexOf(a),ib=PKG_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
+  return names.map(function(x){
+    var gs=map[x], attr=gs.map(function(g){var it=PKG[g.form].items.filter(function(q){return q[0]===x;})[0], l=g.lvs; if(it&&it[2]){var fl=l.filter(function(q){return it[2].indexOf(q)>=0;}); if(fl.length) l=fl;} return 'Level '+l.join(', ')+' '+SHORT[g.form];}).join('; ');
+    var needs3=gs.every(function(g){var it=PKG[g.form].items.filter(function(q){return q[0]===x;})[0]; return it&&it[1][0]===0&&it[1][1]===0&&it[1][2]===1;});
+    return {name:x,attr:attr+(needs3?' · gói 3 Level':'')};
+  });
+}
+var pkgKey='';
+function lvTxt(g){ return 'Level '+g.lvs.join(', '); }
+function renderPkgList(r){
+  var key=r.pkgs.map(function(g){return g.form+g.name+g.lvs.join('');}).join('|'); if(key===pkgKey) return; pkgKey=key;
+  $('#pkgTitle').textContent=r.pkgs.map(function(g){return FORM_NAME[g.form]+' ('+lvTxt(g)+')';}).join(' · ');
+  $('#pkgList').innerHTML=r.pkgs.map(function(g){
+    var rows=g.all.map(function(x){return [x,x,g.items.indexOf(x)>=0];});
+    return '<div class="spgroup"><h3>'+lvTxt(g)+' · '+FORM_NAME[g.form]+'</h3>'
+      +rows.map(function(x){return '<label class="check"><input type="checkbox" data-pk="'+esc(g.form+'|'+x[0])+'"'+(pkOn(g,x[0])?' checked':'')+'><span>'+esc(x[1])+(x[2]?'':' <small style="display:inline;color:var(--warn)">(ngoài gói)</small>')+'</span></label>';}).join('')+'</div>';
+  }).join('');
+}
+function pkgUp(r,f){
+  var p=PKG[f], c=r.levels.length;
+  if(!p||c<1||c>=3) return '';
+  var add=[]; p.items.forEach(function(it){ if(it[1][c]&&!it[1][c-1]) add.push(it[0]); });
+  if(!add.length) return '';
+  return ' Với '+(c+1)+' Level, '+FORM_NAME[f]+' có thêm quyền lợi: '+add.join(', ')+'.';
+}
 function renderQuote(r){
   var t=TVTS[S.tvts], h='';
   var ok=!r.errors.length;
@@ -520,6 +594,11 @@ function renderQuote(r){
     +'<div class="save num">Giảm '+fmt(r.saved)+' ('+pc(r.base?r.saved/r.base:0)+') so với học phí gốc</div>'
     +'<div class="words">Bằng chữ: '+readVN(r.final)+'.</div></div>';
   h+='<dl class="kv"><dt>Hiệu lực đến hết</dt><dd><b>'+(r.valid?dmy(r.valid):'(chưa có)')+'</b></dd></dl>';
+  var pkAll=pkUnion(r);
+  if(S.showPkg && pkAll.length){
+    h+='<div class="pkg"><div class="lbl">Quyền lợi học tập</div><ul>'
+      +pkAll.map(function(x){return '<li><span>'+esc(x.name)+'<small>'+esc(x.attr)+'</small></span><i aria-label="Có">✓</i></li>';}).join('')+'</ul></div>';
+  }
   var tp=tips(r);
   if(tp.length){h+='<details class="internal tipsbox" data-k="tips"'+(S.open.tips?' open':'')+'><summary>Gợi ý chốt deal ('+tp.length+')</summary><div class="tips">'+tp.map(function(x){return '<div class="tip">'+x+'</div>';}).join('')+'</div></details>';}
   var ck=transferContent();
@@ -545,6 +624,8 @@ function quoteText(r){
   if(r.capped) L.push('– Điều chỉnh về trần '+pc(CAP2)+': +'+fmt(r.raw-r.cap));
   if(r.plan==='A') L.push('– '+r.nA+' ('+pc(r.pA)+' học phí gốc) thay thế ưu đãi tháng');
   if(r.plan==='B') L.push('– '+r.nB+': giảm thêm '+pc(r.pB)+' trên học phí sau ưu đãi tháng');
+  var pu=S.showPkg?pkUnion(r):[];
+  if(pu.length){ L.push('','Quyền lợi học tập:'); pu.forEach(function(x){L.push('✓ '+x.name+' ('+x.attr+')');}); }
   L.push('','HỌC PHÍ ÁP DỤNG: '+fmt(r.final),'('+readVN(r.final)+')');
   if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
   if(S.showPay) L.push('','Chuyển khoản: '+BANK.bank+' – STK '+BANK.acc+' – '+BANK.owner,'Nội dung CK: '+transferContent());
@@ -561,7 +642,7 @@ function copy(text,msg){
 /* ===== Các phần điều khiển ===== */
 var cur=null;
 function update(){
-  cur=calc(); renderQuote(cur);
+  cur=calc(); if(cur.pkgs) renderPkgList(cur); renderQuote(cur);
   var cls=cur.cls, info='';
   if(cls){
     var hi=cur.hi;
@@ -682,6 +763,11 @@ $('#specialBox').addEventListener('change',function(e){
 $('#copyQuote').addEventListener('click',function(){ copy(quoteText(cur),'Đã sao chép báo giá. Dán vào Zalo hoặc email để gửi học viên.'); });
 $('#copyCk').addEventListener('click',function(){ copy(transferContent(),'Đã sao chép nội dung chuyển khoản.'); });
 $('#showPay').addEventListener('change',function(e){S.showPay=e.target.checked;update();});
+$('#pkgList').addEventListener('change',function(e){var k=e.target.getAttribute('data-pk'); if(k===null) return; S.pkgSel[k]=e.target.checked; update();});
+$('#pkgDefault').addEventListener('click',function(){S.pkgSel={};pkgKey='';update();});
+$('#pkgAll').addEventListener('click',function(){ (cur.pkgs||[]).forEach(function(g){ g.all.forEach(function(x){S.pkgSel[g.form+'|'+x]=true;}); }); pkgKey='';update(); });
+$('#pkgNone').addEventListener('click',function(){ (cur.pkgs||[]).forEach(function(g){ g.all.forEach(function(x){S.pkgSel[g.form+'|'+x]=false;}); }); pkgKey='';update(); });
+$('#showPkg').addEventListener('change',function(e){S.showPkg=e.target.checked;update();});
 $('#studentView').addEventListener('change',function(e){S.student=e.target.checked;update();});
 $('#quotePanel').addEventListener('toggle',function(e){var k=e.target.getAttribute&&e.target.getAttribute('data-k'); if(k) S.open[k]=e.target.open;},true);
 var imgBlob=null,imgName='Bao-gia-CFA.png',imgUrl='';
