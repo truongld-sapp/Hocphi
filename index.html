@@ -103,6 +103,11 @@ details.rules li{margin-bottom:4px}
 .qhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:var(--ink);color:var(--bg)}
 .qhead b{display:block;font-size:15px;letter-spacing:.06em}
 .qhead span{font-size:12px;opacity:.8}
+.deadline{background:var(--warn-soft);border:2px solid var(--warn);border-radius:10px;padding:12px 14px;text-align:center}
+.deadline span{display:block;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--warn)}
+.deadline b{display:block;font-size:34px;line-height:1.2;font-weight:800;color:var(--warn);margin:2px 0}
+.deadline small{display:block;font-size:12px;color:var(--muted)}
+.export .deadline b{font-variant-numeric:normal!important;letter-spacing:normal!important}
 .qhead .logo{display:none}
 .quote.student .qhead .logo{display:block;background:#fff;border-radius:8px;padding:6px 12px;height:46px;width:auto;margin:0 0 8px}
 .quote.student .qhead b.nm{display:none}
@@ -603,7 +608,7 @@ function renderCmp(cd){
 function renderQuote(r){
   var t=TVTS[S.tvts], h='';
   var ok=!r.errors.length;
-  h+='<div class="qhead"><div><img class="logo" src="'+LOGO+'" alt="SAPP Academy"><b class="nm">SAPP ACADEMY</b><span>Phiếu báo giá học phí CFA®</span></div><div><span>Ngày báo giá</span><b class="num" style="letter-spacing:0">'+dmy(r.qd)+'</b></div></div>';
+  h+='<div class="qhead"><div><img class="logo" src="'+LOGO+'" alt="SAPP Academy"><b class="nm">SAPP ACADEMY</b><span>Phiếu báo giá học phí CFA®</span></div></div>';
   h+='<div class="qbody">';
   var nf=r.errors.length+r.notes.length;
   if(!nf) h+='<div class="note ok internal">Sẵn sàng báo giá.</div>';
@@ -643,7 +648,7 @@ function renderQuote(r){
     +'<div class="save num">Giảm '+fmt(r.saved)+' ('+pc(r.base?r.saved/r.base:0)+') so với học phí gốc</div>'
     +'<div class="words">Bằng chữ: '+readVN(r.final)+'.</div></div>';
   }
-  h+='<dl class="kv"><dt>Hiệu lực đến hết</dt><dd><b>'+(r.valid?dmy(r.valid):'(chưa có)')+'</b></dd></dl>';
+  h+='<div class="deadline"><span>Hiệu lực báo giá đến hết ngày</span><b class="num">'+(r.valid?dmy(r.valid):'(chưa có)')+'</b><small>Sau ngày này mức ưu đãi có thể thay đổi</small></div>';
   var pkAll=pkUnion(r);
   if(S.showPkg && pkAll.length && !cmpOn){
     h+='<div class="pkg"><div class="lbl">Quyền lợi học tập</div><ul>'
@@ -662,7 +667,7 @@ function transferContent(){ return [S.name.trim(),S.phone.trim()].filter(Boolean
 
 function quoteText(r){
   var t=TVTS[S.tvts], L=[];
-  L.push('BÁO GIÁ HỌC PHÍ CFA® – SAPP ACADEMY','Ngày báo giá: '+dmy(r.qd));
+  L.push('BÁO GIÁ HỌC PHÍ CFA® – SAPP ACADEMY');
   L.push('Học viên: '+(S.name.trim()||'...')+(S.phone.trim()?' – '+S.phone.trim():''));
   if(r.cls) L.push('Lớp khai giảng đầu tiên: '+r.cls.code+' (khai giảng '+dmy(r.cls.kg)+')');
   L.push('');
@@ -671,7 +676,7 @@ function quoteText(r){
     var cd=compareData(), rw=cmpRows(cd);
     cd.forEach(function(c){ L.push('','GÓI '+c.n+' LEVEL ('+(c.n>1?'Level '+c.lo+'–'+c.hi:'Level '+c.lo)+'): '+fmt(c.final),'Học phí gốc '+fmt(c.base)+' – giảm '+fmt(c.saved)+' ('+pc(c.base?c.saved/c.base:0)+')'); rw.forEach(function(x){ if(c.items[x]) L.push('✓ '+x); }); });
     L.push('');
-    if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
+    if(r.valid) L.push('⏰ BÁO GIÁ CÓ HIỆU LỰC ĐẾN HẾT NGÀY '+dmy(r.valid)+'.');
     L.push('','Tư vấn viên: '+t[0]+' – '+t[1]+' – '+t[2],'Hotline '+BANK.hotline+' · '+BANK.web);
     return L.join('\n');
   }
@@ -684,7 +689,7 @@ function quoteText(r){
   var pu=S.showPkg?pkUnion(r):[];
   if(pu.length){ L.push('','Quyền lợi học tập:'); pu.forEach(function(x){L.push('✓ '+x.name+'');}); }
   L.push('','HỌC PHÍ ÁP DỤNG: '+fmt(r.final),'('+readVN(r.final)+')');
-  if(r.valid) L.push('Báo giá có hiệu lực đến hết ngày '+dmy(r.valid)+'.');
+  if(r.valid) L.push('⏰ BÁO GIÁ CÓ HIỆU LỰC ĐẾN HẾT NGÀY '+dmy(r.valid)+'.');
   L.push('','Tư vấn viên: '+t[0]+' – '+t[1]+' – '+t[2],'Hotline '+BANK.hotline+' · '+BANK.web);
   return L.join('\n');
 }
